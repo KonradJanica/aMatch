@@ -1,6 +1,8 @@
 package com.konradjanica.amatch;
 
+import android.content.Context;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.view.MenuItem;
 import com.andtinder.model.CardModel;
 import com.andtinder.view.CardContainer;
 import com.andtinder.view.SimpleCardStackAdapter;
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.konradjanica.careercup.CareerCupAPI;
 import com.konradjanica.careercup.questions.Question;
 
@@ -29,6 +32,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fresco.initialize(this);
         setContentView(R.layout.activity_main);
 
         String page = "1";
@@ -61,13 +65,16 @@ public class MainActivity extends ActionBarActivity {
         }
 
         protected void onPostExecute(LinkedList<Question> questionsList) {
+            String imgUrl = "http://1-ps.googleusercontent.com/xk/JJeiMfWcqZ0jQjTeTmLh_Jvy8i/s.careercup-hrd.appspot.com/www.careercup.com/attributeimages/xmicrosoft-interview-questions.png.pagespeed.ic.7T_HnafFtwFLzs6HLjzN.png";
             // TODO: check this.exception
             // TODO: do something with the feed
             for (Question q : questionsList) {
-                adapter.add(new CardModel(q.company, q.questionText, r.getDrawable(R.drawable.picture1)));
+                adapter.add(new CardModel(q.company, q.questionText, imgUrl));
+//                adapter.add(new CardModel(q.company, q.questionText, r.getDrawable(R.drawable.picture1)));
             }
 
-            CardModel cardModel = new CardModel("Title1", "Description goes here", r.getDrawable(R.drawable.picture1));
+//            CardModel cardModel = new CardModel("Title1", "Description goes here", r.getDrawable(R.drawable.picture1));
+            CardModel cardModel = new CardModel("Title1", "Description goes here", imgUrl);
             cardModel.setOnClickListener(new CardModel.OnClickListener() {
                 @Override
                 public void OnClickListener() {
