@@ -8,8 +8,8 @@ import android.widget.FrameLayout;
 import com.andtinder.model.CardModel;
 import com.konradjanica.amatch.R;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 public abstract class CardStackAdapter extends BaseCardStackAdapter {
 	private final Context mContext;
@@ -19,16 +19,16 @@ public abstract class CardStackAdapter extends BaseCardStackAdapter {
 	 * performed on the deque should be synchronized on this lock.
 	 */
 	private final Object mLock = new Object();
-	private ArrayList<CardModel> mData;
+	private LinkedList<CardModel> mData;
 
 	public CardStackAdapter(Context context) {
 		mContext = context;
-		mData = new ArrayList<CardModel>();
+		mData = new LinkedList<>();
 	}
 
 	public CardStackAdapter(Context context, Collection<? extends CardModel> items) {
 		mContext = context;
-		mData = new ArrayList<CardModel>(items);
+		mData = new LinkedList<>(items);
 	}
 
 	@Override
@@ -76,13 +76,19 @@ public abstract class CardStackAdapter extends BaseCardStackAdapter {
 		synchronized (mLock) {
 			mData.add(item);
 		}
+	}
+
+	public void addInitial(CardModel item) {
+		synchronized (mLock) {
+			mData.add(item);
+		}
 		notifyDataSetChanged();
 	}
 
 	public CardModel pop() {
 		CardModel model;
 		synchronized (mLock) {
-			model = mData.remove(mData.size() - 1);
+			model = mData.remove(0);
 		}
 		notifyDataSetChanged();
 		return model;
@@ -95,7 +101,7 @@ public abstract class CardStackAdapter extends BaseCardStackAdapter {
 
 	public CardModel getCardModel(int position) {
 		synchronized (mLock) {
-			return mData.get(mData.size() - 1 - position);
+			return mData.get(position);
 		}
 	}
 

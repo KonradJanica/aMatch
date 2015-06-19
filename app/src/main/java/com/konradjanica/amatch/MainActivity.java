@@ -32,8 +32,11 @@ public class MainActivity extends ActionBarActivity {
     private Resources r;
     private SimpleCardStackAdapter adapter;
 
+    private CareerCupAPI careerCupAPI;
     private LinkedList<Question> questionsList;
     private int cardCount;
+    private int pageRaw;
+    private boolean isFirstRun;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,29 +44,30 @@ public class MainActivity extends ActionBarActivity {
         Fresco.initialize(this);
         setContentView(R.layout.activity_main);
 
-        String page = "1";
         String company = "microsoft-interview-questions";
         String id = "software-engineer-intern-interview-questions";
         String topic = "algorithm-interview-questions";
 
+        careerCupAPI = new CareerCupAPI();
+        questionsList = new LinkedList<>();
         cardCount = 0;
+        pageRaw = 1;
+        isFirstRun = true;
+
         mCardContainer = (CardContainer) findViewById(R.id.layoutview);
         r = getResources();
         adapter = new SimpleCardStackAdapter(this);
 
-        new DownloadQuestions().execute(page);
-
+        final String page = Integer.toString(pageRaw);
+        new DownloadInitialQuestions().execute(page);
     }
 
-    private class DownloadQuestions extends AsyncTask<String , Void, Void> {
-
+    private class DownloadInitialQuestions extends AsyncTask<String, Void, Void> {
         private Exception exception;
 
         protected Void doInBackground(String... filters) {
             try {
-                CareerCupAPI cc = new CareerCupAPI();
-//                LinkedList<Question> questionsList;
-                questionsList = cc.loadRecentQuestions(filters);
+                questionsList.addAll(careerCupAPI.loadRecentQuestions(filters));
             } catch (Exception e) {
                 this.exception = e;
             }
@@ -71,39 +75,97 @@ public class MainActivity extends ActionBarActivity {
         }
 
         protected void onPostExecute(Void dummy) {
-            // Extract only maxCard amount of cards or less (when less questions exist)
-            final int cardIndex = Math.min(maxCards, questionsList.size());
-            Iterator<Question> itr = questionsList.listIterator(cardIndex);
+            if (questionsList.size() == 0) {
+                mCardContainer.setAdapter(adapter);
+                return;
+            }
+            Iterator<Question> itr = questionsList.iterator();
             // Add cards to adapter container
             while (itr.hasNext() && cardCount < maxCards) {
-                Question q = itr.next();
-                final CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL, q.questionTextLineCount);
-                cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
-                    @Override
-                    public void onLike() {
-                        Log.i("Swipeable Cards", "I like the card");
-                    }
-                    @Override
-                    public void onDislike() {
-                        Log.i("Swipeable Cards", "I dislike the card");
-                        adapter.add(cardModel);
-                        mCardContainer.setAdapter(adapter);
-                    }
-                });
-                cardModel.setOnClickListener(new CardModel.OnClickListener() {
-                    @Override
-                    public void OnClickListener() {
-                        Log.i("Swipeable Cards", "I am pressing the card");
-                    }
-                });
-                adapter.add(cardModel);
-                ++cardCount;
-                questionsList.remove(itr);
+                addCardInitial(itr);
             }
 //            CardModel cardModel = new CardModel("Title1", "Description goes here", r.getDrawable(R.drawable.picture1));
 
             mCardContainer.setAdapter(adapter);
         }
+    }
+
+    private class DownloadQuestions extends AsyncTask<String, Void, Void> {
+        private Exception exception;
+
+        protected Void doInBackground(String... filters) {
+            try {
+                questionsList.addAll(careerCupAPI.loadRecentQuestions(filters));
+            } catch (Exception e) {
+                this.exception = e;
+            }
+            return null;
+        }
+
+        protected void onPostExecute(Void dummy) {
+            if (questionsList.size() == 0) {
+                Log.i("CareerCupAPI", "No more questions found");
+                return;
+            }
+            Iterator<Question> itr = questionsList.iterator();
+            // Add cards to adapter container
+            while (itr.hasNext() && cardCount < maxCards) {
+                addCard(itr);
+            }
+        }
+    }
+
+    private void addCard(Iterator<Question> itr) {
+        addCard(itr, false);
+    }
+
+    private void addCardInitial(Iterator<Question> itr) {
+        addCard(itr, true);
+    }
+
+    private void addCard(Iterator<Question> itr, boolean isInitial) {
+        Question q = itr.next();
+        final CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL, q.questionTextLineCount);
+        cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
+            @Override
+            public void onLike() {
+                Log.i("Swipeable Cards", "I like the card");
+                if (questionsList.size() > maxCards) {
+                    addCard(questionsList.iterator());
+                } else {
+                    --cardCount;
+                    ++pageRaw;
+                    final String page = Integer.toString(pageRaw);
+                    new DownloadQuestions().execute(page);
+                }
+            }
+
+            @Override
+            public void onDislike() {
+                Log.i("Swipeable Cards", "I dislike the card");
+                if (questionsList.size() > maxCards) {
+                    addCard(questionsList.iterator());
+                } else {
+                    --cardCount;
+                    ++pageRaw;
+                    final String page = Integer.toString(pageRaw);
+                    new DownloadQuestions().execute(page);
+                }
+            }
+        });
+        cardModel.setOnClickListener(new CardModel.OnClickListener() {
+            @Override
+            public void OnClickListener() {
+                Log.i("Swipeable Cards", "I am pressing the card");
+            }
+        });
+        if (isInitial) {
+            adapter.addInitial(cardModel);
+        } else {
+            adapter.add(cardModel);
+        }
+        ++cardCount;
+        itr.remove();
     }
 
     @Override
