@@ -18,6 +18,10 @@ public class QuestionSearchTest {
         QuestionSearch tester = new QuestionSearch(questionURL);
         tester.loadRecentQuestions();
 
+        filters = new String[]{"2", "microsoft-interview-questions"};
+        questionURL = new QuestionUrlParser(filters);
+        tester = new QuestionSearch(questionURL);
+        tester.loadRecentQuestions();
     }
 
 }

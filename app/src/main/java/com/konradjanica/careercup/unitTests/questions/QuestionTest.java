@@ -12,7 +12,7 @@ public class QuestionTest {
     /**
      * A Constructor Test for the Question object
      * Tests direct member access.
-     * @throws assertion exception when object members don't match
+     * @throws java.io.IOException When object members don't match
      */
     @Test
     public void fullCstorShouldHaveAllMembers() {
@@ -20,9 +20,10 @@ public class QuestionTest {
         String qText = "Question Test";
         String id = "ID test";
         String company = "Company test";
+        String companyImgURL = "www.companyimgurl.com test";
         String[] tags = {"Tag1 test", "Tag2 test", "Tag3 test"};
         // Create Object for Testing
-        Question tester = new Question(qText, id, company, tags);
+        Question tester = new Question(qText, id, company, companyImgURL, tags);
         // Test parameters match members
         assertEquals("Member (questionText) failed in construction", qText, tester.questionText);
         assertEquals("Member (id) failed in construction", id, tester.id);

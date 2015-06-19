@@ -12,12 +12,18 @@ import java.util.LinkedList;
  * Created by Konrad on 17/06/2015.
  */
 public class CareerCupAPI {
-    private String[] filters;
     private QuestionUrlParser questionURL;
     private QuestionSearch questionSearch;
 
     public LinkedList<Question> loadRecentQuestions(String page, String company, String job, String topic) throws IOException {
-        this.filters = new String[]{page, company, topic, job};
+        String[] filters = new String[]{page, company, topic, job};
+        questionURL = new QuestionUrlParser(filters);
+        questionSearch = new QuestionSearch(questionURL);
+        Question[] questionList = questionSearch.loadRecentQuestions();
+        return new LinkedList(Arrays.asList(questionList));
+    }
+
+    public LinkedList<Question> loadRecentQuestions(String... filters) throws IOException {
         questionURL = new QuestionUrlParser(filters);
         questionSearch = new QuestionSearch(questionURL);
         Question[] questionList = questionSearch.loadRecentQuestions();

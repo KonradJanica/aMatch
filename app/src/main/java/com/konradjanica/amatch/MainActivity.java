@@ -44,7 +44,7 @@ public class MainActivity extends ActionBarActivity {
         r = getResources();
         adapter = new SimpleCardStackAdapter(this);
 
-        new DownloadQuestions().execute(page, company, id, topic);
+        new DownloadQuestions().execute(page);
 
     }
 
@@ -56,7 +56,7 @@ public class MainActivity extends ActionBarActivity {
             try {
                 CareerCupAPI cc = new CareerCupAPI();
                 LinkedList<Question> questionsList;
-                questionsList = cc.loadRecentQuestions(filters[0], filters[1], filters[2], filters[3]);
+                questionsList = cc.loadRecentQuestions(filters);
                 return questionsList;
             } catch (Exception e) {
                 this.exception = e;
@@ -69,12 +69,13 @@ public class MainActivity extends ActionBarActivity {
             // TODO: check this.exception
             // TODO: do something with the feed
             for (Question q : questionsList) {
-                adapter.add(new CardModel(q.company, q.questionText, imgUrl));
+//                adapter.add(new CardModel(q.company, q.questionText, q.companyImgURL, (int) (q.questionTextLineCount*0.5)));
+                adapter.add(new CardModel(q.company, q.questionText, q.companyImgURL, q.questionTextLineCount));
+//                adapter.add(new CardModel(q.company, q.questionText, q.companyImgURL, 40));
 //                adapter.add(new CardModel(q.company, q.questionText, r.getDrawable(R.drawable.picture1)));
             }
-
 //            CardModel cardModel = new CardModel("Title1", "Description goes here", r.getDrawable(R.drawable.picture1));
-            CardModel cardModel = new CardModel("Title1", "Description goes here", imgUrl);
+            CardModel cardModel = new CardModel("Title1", "Description goes here", imgUrl, 1);
             cardModel.setOnClickListener(new CardModel.OnClickListener() {
                 @Override
                 public void OnClickListener() {
@@ -121,4 +122,6 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

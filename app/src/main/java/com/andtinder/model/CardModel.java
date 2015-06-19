@@ -27,6 +27,7 @@ public class CardModel {
 	private String   title;
 	private String   description;
 	private String   companyImgUrl;
+	private int      descriptionLineCount;
 	private Drawable cardImageDrawable;
 	private Drawable cardLikeImageDrawable;
 	private Drawable cardDislikeImageDrawable;
@@ -35,7 +36,7 @@ public class CardModel {
 
     private OnClickListener mOnClickListener = null;
 
-    public interface OnCardDimissedListener {
+	public interface OnCardDimissedListener {
         void onLike();
         void onDislike();
     }
@@ -60,10 +61,11 @@ public class CardModel {
 		this.cardImageDrawable = new BitmapDrawable(null, cardImage);
 	}
 
-    public CardModel(String title, String description, String companyImgUrl) {
+    public CardModel(String title, String description, String companyImgUrl, int descriptionLineCount) {
         this.title = title;
         this.description = description;
         this.companyImgUrl = companyImgUrl;
+		this.descriptionLineCount = descriptionLineCount;
     }
 
 	public String getTitle() {
@@ -89,6 +91,14 @@ public class CardModel {
     public void setCompanyImgUrl(String companyImgUrl) {
         this.companyImgUrl = companyImgUrl;
     }
+
+	public int getDescriptionLineCount() {
+		return descriptionLineCount;
+	}
+
+	public void setDescriptionLineCount(int descriptionLineCount) {
+		this.descriptionLineCount = descriptionLineCount;
+	}
 
 	public Drawable getCardImageDrawable() {
 		return cardImageDrawable;

@@ -36,13 +36,31 @@ public class QuestionSearch {
         Document doc = Jsoup.connect(url).userAgent(userAgent).timeout(timeout).get();
 
         // POPULATE QUESTION TEXT
-        String selector = "span[class=entry] p";
+        String selector = "span[class=entry] a p, a p+pre, a p+code";
         Elements elements = doc.select(selector); // get each element that matches the CSS selector
+//        int x = 0;
+        String questionText = "";
         for (Element element : elements) {
-            String plainText = getPlainText(element); // format that element to plain text
-            Question nextQuestion = new Question(plainText);
-            questionsList.add(nextQuestion);
+            if (element.tagName() == "pre" || element.tagName() == "code") {
+                questionText += element.text();
+            } else {
+                String plainText = getPlainText(element);
+                questionText += plainText;
+            }
+            if (element.nextElementSibling() == null) {
+                Question nextQuestion = new Question(questionText);
+                String[] lineCounter = questionText.split("\n");
+                int lineCount = lineCounter.length + 1;
+                nextQuestion.questionTextLineCount = lineCount;
+                questionsList.add(nextQuestion);
 //            System.out.println(plainText);
+//                x++;
+//                System.out.println(x + "size = " + questionsList.size());
+//                System.out.println(questionText);
+//                System.out.println(lineCount);
+                questionText = "";
+                lineCount = 0;
+            }
         }
         // POPULATE ID
         selector = "span[class=entry] a[href~=/question\\?id]";
@@ -67,6 +85,18 @@ public class QuestionSearch {
             nextQuestion.company = companyTitle;
             index++;
 //            System.out.println(companyTitle);
+        }
+        // POPULATE COMPANY URL
+        selector = "span[class=company] img";
+        elements = doc.select(selector); // get each element that matches the CSS selector
+        index = 0;
+        for (Element element : elements) {
+            String companyImgURL = element.attr("src");
+            Question nextQuestion = questionsList.get(index);
+            nextQuestion.companyImgURL = companyImgURL;
+            index++;
+//            System.out.println(companyImgURL);
+//            System.out.println(index + "size = " + questionsList.size());
         }
         // POPULATE TAGS
         selector = "span[class=tags]";
@@ -122,16 +152,16 @@ public class QuestionSearch {
                 append("\n * ");
             else if (name.equals("dt"))
                 append("  ");
-            else if (StringUtil.in(name, "p", "h1", "h2", "h3", "h4", "h5", "tr"))
-                append("\n");
+//            else if (StringUtil.in(name, "p", "h1", "h2", "h3", "h4", "h5", "tr"))
+//                append("\n");
         }
 
         // hit when all of the node's children (if any) have been visited
         public void tail(Node node, int depth) {
             String name = node.nodeName();
-            if (StringUtil.in(name, "br", "dd", "dt", "p", "h1", "h2", "h3", "h4", "h5"))
+            if (StringUtil.in(name, "br", "dd", "dt", "p", "h1", "h2", "h3", "h4", "h5")) {
                 append("\n");
-            else if (name.equals("a"))
+            } else if (name.equals("a"))
                 append(String.format(" <%s>", node.absUrl("href")));
         }
 
