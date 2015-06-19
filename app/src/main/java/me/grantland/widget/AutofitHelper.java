@@ -18,6 +18,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
+import com.konradjanica.amatch.R;
+
 import java.util.ArrayList;
 
 /**
@@ -61,6 +63,7 @@ public class AutofitHelper {
     public static AutofitHelper create(TextView view, AttributeSet attrs, int defStyle) {
         AutofitHelper helper = new AutofitHelper(view);
         boolean sizeToFit = true;
+        boolean heightToFit = false;
         if (attrs != null) {
             Context context = view.getContext();
             int minTextSize = (int) helper.getMinTextSize();
@@ -72,14 +75,16 @@ public class AutofitHelper {
                     defStyle,
                     0);
             sizeToFit = ta.getBoolean(R.styleable.AutofitTextView_sizeToFit, sizeToFit);
+            heightToFit = ta.getBoolean(R.styleable.AutofitTextView_heightToFit, heightToFit);
             minTextSize = ta.getDimensionPixelSize(R.styleable.AutofitTextView_minTextSize,
                     minTextSize);
             precision = ta.getFloat(R.styleable.AutofitTextView_precision, precision);
             ta.recycle();
 
             helper.setMinTextSize(TypedValue.COMPLEX_UNIT_PX, minTextSize)
-                    .setPrecision(precision);
+                .setPrecision(precision);
         }
+        helper.setHeightFitting(heightToFit);
         helper.setEnabled(sizeToFit);
 
         return helper;
@@ -89,7 +94,7 @@ public class AutofitHelper {
      * Re-sizes the textSize of the TextView so that the text fits within the bounds of the View.
      */
     private static void autofit(TextView view, TextPaint paint, float minTextSize, float maxTextSize,
-                                int maxLines, float precision) {
+            int maxLines, float precision) {
         if (maxLines <= 0 || maxLines == Integer.MAX_VALUE) {
             // Don't auto-size since there's no limit on lines.
             return;
@@ -128,30 +133,39 @@ public class AutofitHelper {
                     displayMetrics);
         }
 
-        int targetHeight = view.getHeight() - view.getPaddingTop() - view.getPaddingTop();
-        if (targetHeight <= 0) {
-            view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
-            return;
-        }
+        if (mIsHeightFitting) {
+            int targetHeight = view.getHeight() - view.getPaddingTop() - view.getPaddingTop();
+            if (targetHeight <= 0) {
+                if (size < minTextSize) {
+                    size = minTextSize;
+                }
+                view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+                return;
+            }
 
-        float textHeight = getTextHeight(text, paint, targetWidth, size);
-        textHeight = getTextHeight(text, paint, targetWidth, size);
-        float heightRatio = targetHeight / textHeight;
-        float newSize = size * heightRatio;
-        if (newSize < size) {
-            size = newSize;
-        }
+            float textHeight = getTextHeight(text, paint, targetWidth, size);
+            textHeight = getTextHeight(text, paint, targetWidth, size);
+            float heightRatio = targetHeight / textHeight;
+            float newSize = size * heightRatio;
+            if (newSize < size) {
+                size = newSize;
+            }
 
-        if (size < minTextSize) {
-            size = minTextSize;
+            if (size < minTextSize) {
+                size = minTextSize;
+            }
         }
 
         view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
     }
 
+    /**
+     * Try to fit the text with current size to a static layout to calculate height needed
+     * by that text size.
+     * @note Can be put in a loop where text size is gradually decreased etc.
+     * @return float The height size required by the text.
+     */
     private static float getTextHeight(CharSequence text, TextPaint paint, int width, float textSize) {
-        TextPaint tempPaint = new TextPaint(paint);
-        tempPaint.setTextSize(textSize);
         StaticLayout textHeightAdjuster = new StaticLayout(text, paint, width,
                 Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, true);
         return textHeightAdjuster.getHeight();
@@ -161,8 +175,8 @@ public class AutofitHelper {
      * Recursive binary search to find the best size for the text.
      */
     private static float getAutofitTextSize(CharSequence text, TextPaint paint,
-                                            float targetWidth, int maxLines, float low, float high, float precision,
-                                            DisplayMetrics displayMetrics) {
+            float targetWidth, int maxLines, float low, float high, float precision,
+            DisplayMetrics displayMetrics) {
         float mid = (low + high) / 2.0f;
         int lineCount = 1;
         StaticLayout layout = null;
@@ -171,7 +185,7 @@ public class AutofitHelper {
                 displayMetrics));
 
         if (maxLines != 1) {
-            layout = new StaticLayout(text, paint, (int) targetWidth, Layout.Alignment.ALIGN_NORMAL,
+            layout = new StaticLayout(text, paint, (int)targetWidth, Layout.Alignment.ALIGN_NORMAL,
                     1.0f, 0.0f, true);
             lineCount = layout.getLineCount();
         }
@@ -186,10 +200,12 @@ public class AutofitHelper {
             }
             return getAutofitTextSize(text, paint, targetWidth, maxLines, low, mid, precision,
                     displayMetrics);
-        } else if (lineCount < maxLines) {
+        }
+        else if (lineCount < maxLines) {
             return getAutofitTextSize(text, paint, targetWidth, maxLines, mid, high, precision,
                     displayMetrics);
-        } else {
+        }
+        else {
             float maxLineWidth = 0;
             if (maxLines == 1) {
                 maxLineWidth = paint.measureText(text, 0, text.length());
@@ -216,10 +232,10 @@ public class AutofitHelper {
     }
 
     private static int getLineCount(CharSequence text, TextPaint paint, float size, float width,
-                                    DisplayMetrics displayMetrics) {
+            DisplayMetrics displayMetrics) {
         paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, size,
                 displayMetrics));
-        StaticLayout layout = new StaticLayout(text, paint, (int) width,
+        StaticLayout layout = new StaticLayout(text, paint, (int)width,
                 Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, true);
         return layout.getLineCount();
     }
@@ -230,7 +246,8 @@ public class AutofitHelper {
         TransformationMethod method = view.getTransformationMethod();
         if (method != null && method instanceof SingleLineTransformationMethod) {
             maxLines = 1;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        }
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             // setMaxLines() and getMaxLines() are only available on android-16+
             maxLines = view.getMaxLines();
         }
@@ -253,6 +270,7 @@ public class AutofitHelper {
 
     private boolean mEnabled;
     private boolean mIsAutofitting;
+    private static boolean mIsHeightFitting;
 
     private ArrayList<OnTextSizeChangeListener> mListeners;
 
@@ -333,6 +351,7 @@ public class AutofitHelper {
      * is adjusted based on the current density and user font size preference.
      *
      * @param size The scaled pixel size.
+     *
      * @attr ref me.grantland.R.styleable#AutofitTextView_minTextSize
      */
     public AutofitHelper setMinTextSize(float size) {
@@ -345,6 +364,7 @@ public class AutofitHelper {
      *
      * @param unit The desired dimension unit.
      * @param size The desired size in the given units.
+     *
      * @attr ref me.grantland.R.styleable#AutofitTextView_minTextSize
      */
     public AutofitHelper setMinTextSize(int unit, float size) {
@@ -379,6 +399,7 @@ public class AutofitHelper {
      * is adjusted based on the current density and user font size preference.
      *
      * @param size The scaled pixel size.
+     *
      * @attr ref android.R.styleable#TextView_textSize
      */
     public AutofitHelper setMaxTextSize(float size) {
@@ -391,6 +412,7 @@ public class AutofitHelper {
      *
      * @param unit The desired dimension unit.
      * @param size The desired size in the given units.
+     *
      * @attr ref android.R.styleable#TextView_textSize
      */
     public AutofitHelper setMaxTextSize(int unit, float size) {
@@ -433,7 +455,8 @@ public class AutofitHelper {
     }
 
     /**
-     * Returns whether or not automatically resizing text is enabled.
+     * Returns whether or not automatically resizing text
+     * by width and number of lines is enabled.
      */
     public boolean isEnabled() {
         return mEnabled;
@@ -458,6 +481,27 @@ public class AutofitHelper {
                 mTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
             }
         }
+        return this;
+    }
+
+    /**
+     * Returns whether or not automatically resizing text
+     * by height is enabled.
+     * @return boolean True when height scaling is on.
+     */
+    public boolean isHeightFitting() {
+        return mIsHeightFitting;
+    }
+
+    /**
+     * Sets the state of automatically resizing by text fitting in height.
+     * Calls an autofit if it is already enabled.
+     * @param enabled The state to update the height fitting member
+     */
+    public AutofitHelper setHeightFitting(boolean enabled) {
+        mIsHeightFitting = enabled;
+        // Fit if required
+        setEnabled(mEnabled);
         return this;
     }
 
@@ -550,7 +594,7 @@ public class AutofitHelper {
     private class AutofitOnLayoutChangeListener implements View.OnLayoutChangeListener {
         @Override
         public void onLayoutChange(View view, int left, int top, int right, int bottom,
-                                   int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                int oldLeft, int oldTop, int oldRight, int oldBottom) {
             autofit();
         }
     }

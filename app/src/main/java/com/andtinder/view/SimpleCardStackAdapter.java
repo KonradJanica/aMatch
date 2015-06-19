@@ -53,6 +53,7 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
         description.setEllipsize(TextUtils.TruncateAt.END);
         description.setBackgroundColor(0xff00ff00);
         description.setMinTextSize(2);
+        description.setHeightFitting();
         description.setSizeToFit();
 //        final int width = description.getWidth();
 //        final int height = description.getHeight();
