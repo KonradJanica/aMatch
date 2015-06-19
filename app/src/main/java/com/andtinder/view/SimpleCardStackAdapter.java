@@ -1,29 +1,16 @@
 package com.andtinder.view;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.net.Uri;
-import android.text.Layout;
-import android.text.StaticLayout;
-import android.text.TextPaint;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.andtinder.model.CardModel;
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.konradjanica.amatch.R;
-import com.lb.auto_fit_textview.AutoResizeTextView;
 
-import me.grantland.widget.AutofitLayout;
 import me.grantland.widget.AutofitTextView;
 
 public final class SimpleCardStackAdapter extends CardStackAdapter {

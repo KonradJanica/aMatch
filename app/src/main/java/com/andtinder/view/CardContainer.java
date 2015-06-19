@@ -56,7 +56,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
 
     //TODO: determine max dynamically based on device speed
-    private int mMaxVisible = 10;
+    private int mMaxVisible = 5;
     private GestureDetector mGestureDetector;
     private int mFlingSlop;
     private Orientation mOrientation;

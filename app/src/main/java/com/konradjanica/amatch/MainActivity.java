@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 public class MainActivity extends ActionBarActivity {
+    private final int maxCards = 5;
+
     /**
      * This variable is the container that will host our cards
      */
@@ -31,6 +33,7 @@ public class MainActivity extends ActionBarActivity {
     private SimpleCardStackAdapter adapter;
 
     private LinkedList<Question> questionsList;
+    private int cardCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,7 @@ public class MainActivity extends ActionBarActivity {
         String id = "software-engineer-intern-interview-questions";
         String topic = "algorithm-interview-questions";
 
+        cardCount = 0;
         mCardContainer = (CardContainer) findViewById(R.id.layoutview);
         r = getResources();
         adapter = new SimpleCardStackAdapter(this);
@@ -67,22 +71,23 @@ public class MainActivity extends ActionBarActivity {
         }
 
         protected void onPostExecute(Void dummy) {
-            String imgUrl = "http://1-ps.googleusercontent.com/xk/JJeiMfWcqZ0jQjTeTmLh_Jvy8i/s.careercup-hrd.appspot.com/www.careercup.com/attributeimages/xmicrosoft-interview-questions.png.pagespeed.ic.7T_HnafFtwFLzs6HLjzN.png";
-            // TODO: check this.exception
-            // TODO: do something with the feed
-            Iterator<Question> itr = questionsList.descendingIterator();
-            while (itr.hasNext()) {
+            // Extract only maxCard amount of cards or less (when less questions exist)
+            final int cardIndex = Math.min(maxCards, questionsList.size());
+            Iterator<Question> itr = questionsList.listIterator(cardIndex);
+            // Add cards to adapter container
+            while (itr.hasNext() && cardCount < maxCards) {
                 Question q = itr.next();
-                CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL, q.questionTextLineCount);
+                final CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL, q.questionTextLineCount);
                 cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
                     @Override
                     public void onLike() {
                         Log.i("Swipeable Cards", "I like the card");
                     }
-
                     @Override
                     public void onDislike() {
                         Log.i("Swipeable Cards", "I dislike the card");
+                        adapter.add(cardModel);
+                        mCardContainer.setAdapter(adapter);
                     }
                 });
                 cardModel.setOnClickListener(new CardModel.OnClickListener() {
@@ -92,6 +97,8 @@ public class MainActivity extends ActionBarActivity {
                     }
                 });
                 adapter.add(cardModel);
+                ++cardCount;
+                questionsList.remove(itr);
             }
 //            CardModel cardModel = new CardModel("Title1", "Description goes here", r.getDrawable(R.drawable.picture1));
 
