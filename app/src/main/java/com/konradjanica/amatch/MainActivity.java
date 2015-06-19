@@ -1,10 +1,8 @@
 package com.konradjanica.amatch;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,11 +15,10 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.konradjanica.careercup.CareerCupAPI;
 import com.konradjanica.careercup.questions.Question;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
     private final int maxCards = 5;
 
     /**
@@ -36,7 +33,6 @@ public class MainActivity extends ActionBarActivity {
     private LinkedList<Question> questionsList;
     private int cardCount;
     private int pageRaw;
-    private boolean isFirstRun;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +48,6 @@ public class MainActivity extends ActionBarActivity {
         questionsList = new LinkedList<>();
         cardCount = 0;
         pageRaw = 1;
-        isFirstRun = true;
 
         mCardContainer = (CardContainer) findViewById(R.id.layoutview);
         r = getResources();
@@ -129,11 +124,11 @@ public class MainActivity extends ActionBarActivity {
         cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
             @Override
             public void onLike() {
+                --cardCount;
                 Log.i("Swipeable Cards", "I like the card");
-                if (questionsList.size() > maxCards) {
+                if (questionsList.size() > maxCards * 2) {
                     addCard(questionsList.iterator());
                 } else {
-                    --cardCount;
                     ++pageRaw;
                     final String page = Integer.toString(pageRaw);
                     new DownloadQuestions().execute(page);
@@ -142,11 +137,11 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public void onDislike() {
+                --cardCount;
                 Log.i("Swipeable Cards", "I dislike the card");
-                if (questionsList.size() > maxCards) {
+                if (questionsList.size() > maxCards * 2) {
                     addCard(questionsList.iterator());
                 } else {
-                    --cardCount;
                     ++pageRaw;
                     final String page = Integer.toString(pageRaw);
                     new DownloadQuestions().execute(page);
@@ -172,7 +167,8 @@ public class MainActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+//        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
