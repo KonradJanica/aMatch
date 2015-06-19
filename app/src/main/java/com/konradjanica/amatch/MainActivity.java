@@ -18,6 +18,7 @@ import com.konradjanica.careercup.CareerCupAPI;
 import com.konradjanica.careercup.questions.Question;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class MainActivity extends ActionBarActivity {
@@ -28,6 +29,8 @@ public class MainActivity extends ActionBarActivity {
 
     private Resources r;
     private SimpleCardStackAdapter adapter;
+
+    private LinkedList<Question> questionsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,54 +51,49 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    private class DownloadQuestions extends AsyncTask<String , Void, LinkedList<Question>> {
+    private class DownloadQuestions extends AsyncTask<String , Void, Void> {
 
         private Exception exception;
 
-        protected LinkedList<Question> doInBackground(String... filters) {
+        protected Void doInBackground(String... filters) {
             try {
                 CareerCupAPI cc = new CareerCupAPI();
-                LinkedList<Question> questionsList;
+//                LinkedList<Question> questionsList;
                 questionsList = cc.loadRecentQuestions(filters);
-                return questionsList;
             } catch (Exception e) {
                 this.exception = e;
-                return null;
             }
+            return null;
         }
 
-        protected void onPostExecute(LinkedList<Question> questionsList) {
+        protected void onPostExecute(Void dummy) {
             String imgUrl = "http://1-ps.googleusercontent.com/xk/JJeiMfWcqZ0jQjTeTmLh_Jvy8i/s.careercup-hrd.appspot.com/www.careercup.com/attributeimages/xmicrosoft-interview-questions.png.pagespeed.ic.7T_HnafFtwFLzs6HLjzN.png";
             // TODO: check this.exception
             // TODO: do something with the feed
-            for (Question q : questionsList) {
-//                adapter.add(new CardModel(q.company, q.questionText, q.companyImgURL, (int) (q.questionTextLineCount*0.5)));
-                adapter.add(new CardModel(q.company, q.questionText, q.companyImgURL, q.questionTextLineCount));
-//                adapter.add(new CardModel(q.company, q.questionText, q.companyImgURL, 40));
-//                adapter.add(new CardModel(q.company, q.questionText, r.getDrawable(R.drawable.picture1)));
+            Iterator<Question> itr = questionsList.descendingIterator();
+            while (itr.hasNext()) {
+                Question q = itr.next();
+                CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL, q.questionTextLineCount);
+                cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
+                    @Override
+                    public void onLike() {
+                        Log.i("Swipeable Cards", "I like the card");
+                    }
+
+                    @Override
+                    public void onDislike() {
+                        Log.i("Swipeable Cards", "I dislike the card");
+                    }
+                });
+                cardModel.setOnClickListener(new CardModel.OnClickListener() {
+                    @Override
+                    public void OnClickListener() {
+                        Log.i("Swipeable Cards", "I am pressing the card");
+                    }
+                });
+                adapter.add(cardModel);
             }
 //            CardModel cardModel = new CardModel("Title1", "Description goes here", r.getDrawable(R.drawable.picture1));
-            CardModel cardModel = new CardModel("Title1", "Description goes here", imgUrl, 1);
-            cardModel.setOnClickListener(new CardModel.OnClickListener() {
-                @Override
-                public void OnClickListener() {
-                    Log.i("Swipeable Cards", "I am pressing the card");
-                }
-            });
-
-            cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
-                @Override
-                public void onLike() {
-                    Log.i("Swipeable Cards", "I like the card");
-                }
-
-                @Override
-                public void onDislike() {
-                    Log.i("Swipeable Cards", "I dislike the card");
-                }
-            });
-
-            adapter.add(cardModel);
 
             mCardContainer.setAdapter(adapter);
         }

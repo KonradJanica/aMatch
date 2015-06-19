@@ -44,21 +44,16 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
         Uri uri = Uri.parse(model.getCompanyImgUrl());
         ((SimpleDraweeView) convertView.findViewById(R.id.image)).setImageURI(uri);
         ((AutofitTextView) convertView.findViewById(R.id.title)).setText(model.getTitle());
+
         AutofitTextView description = ((AutofitTextView) convertView.findViewById(R.id.description));
-//        description.setTextSize(description.getTextSize() * heightRatio);
         description.setMaxLines(model.getDescriptionLineCount());
         description.setText(model.getDescription());
         description.setMaxHeight(description.getHeight());
 //        description.setGravity(Gravity.CENTER);
         description.setEllipsize(TextUtils.TruncateAt.END);
-        description.setBackgroundColor(0xff00ff00);
         description.setMinTextSize(2);
         description.setHeightFitting();
         description.setSizeToFit();
-//        final int width = description.getWidth();
-//        final int height = description.getHeight();
-//        description.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, height, getContext().getResources().getDisplayMetrics()));
-//        description.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
         return convertView;
     }
