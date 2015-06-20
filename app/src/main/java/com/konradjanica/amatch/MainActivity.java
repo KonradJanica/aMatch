@@ -2,8 +2,10 @@ package com.konradjanica.amatch;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -178,8 +180,13 @@ public class MainActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+//        Drawable gearup = getResources().getDrawable(R.drawable.gearup);
+//        item.setIcon(gearup);
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+//            Drawable gearDown = getResources().getDrawable(R.drawable.ic_launcher);
+//            item.setIcon(gearDown);
             return true;
         }
 

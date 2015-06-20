@@ -9,7 +9,7 @@
     <me.grantland.widget.AutofitTextView
         android:id="@+id/title"
         style="@android:style/TextAppearance.Large.Inverse"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toStartOf="@+id/image"
         android:background="@color/card_bg"
@@ -77,7 +77,7 @@
             android:layout_height="match_parent"
             android:fontFamily="sans-serif-condensed"
             android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingRight="0dp"
             android:paddingTop="2dp"
             android:textColor="@android:color/secondary_text_light" />
     </me.grantland.widget.AutofitLayout>
