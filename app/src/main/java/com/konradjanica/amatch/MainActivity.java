@@ -9,6 +9,9 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.andtinder.model.CardModel;
 import com.andtinder.view.CardContainer;
@@ -19,6 +22,8 @@ import com.konradjanica.careercup.questions.Question;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+
+import at.markushi.ui.CircleButton;
 
 public class MainActivity extends Activity {
     private final int maxCards = 5;
@@ -36,6 +41,8 @@ public class MainActivity extends Activity {
     private int cardCount;
     private int pageRaw;
 
+    private boolean aMatchButtonState;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,12 +58,42 @@ public class MainActivity extends Activity {
         cardCount = 0;
         pageRaw = 1;
 
+        aMatchButtonState = true;
+
         mCardContainer = (CardContainer) findViewById(R.id.layoutview);
         r = getResources();
         adapter = new SimpleCardStackAdapter(this);
 
         final String page = Integer.toString(pageRaw);
         new DownloadInitialQuestions().execute(page);
+
+        // Set aMatch button release
+        final CircleButton aMatchButton = ((CircleButton) findViewById(R.id.amatchtoggle));
+        aMatchButton.setOnTouchListener(new View.OnTouchListener()
+        {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (aMatchButton.repeatCount < aMatchButton.ANIMATION_REPEATS){
+                        CardModel topCard = adapter.getCardModel(0);
+                        topCard.toggleFavorite();
+                        View topCardView = mCardContainer.getTopCardView();
+                        ImageView favView = ((ImageView) topCardView.findViewById(R.id.fav));
+                        if (topCard.isFavorite()) {
+                            favView.setVisibility(View.VISIBLE);
+                        } else {
+                            favView.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                    Log.d("Released", "Button released");
+                }
+
+                // TODO Auto-generated method stub
+                return false;
+            }
+        });
     }
 
     private class DownloadInitialQuestions extends AsyncTask<String, Void, Void> {
@@ -193,5 +230,15 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void onToggleClicked(View view) {
 
+
+//        if (aMatchButtonState) {
+//            aMatchButton.setImageResource(R.drawable.amatchinvert);
+//            aMatchButtonState = false;
+//        } else {
+//            aMatchButton.setImageResource(R.drawable.amatch);
+//            aMatchButtonState = true;
+//        }
+    }
 }

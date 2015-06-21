@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.andtinder.model.CardModel;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -41,6 +42,13 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
         description.setMinTextSize(2);
         description.setHeightFitting();
         description.setSizeToFit();
+
+        ImageView favoriteHeart = ((ImageView) convertView.findViewById(R.id.fav));
+        if (model.isFavorite()) {
+            favoriteHeart.setVisibility(View.VISIBLE);
+        } else {
+            favoriteHeart.setVisibility(View.INVISIBLE);
+        }
 
         return convertView;
     }

@@ -12,4 +12,10 @@
         <!-- Defines whether to automatically resize text to fit to the view's height bounds. -->
         <attr name="heightToFit" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="CircleButton">
+    <attr name="cb_color" format="color" />
+    <attr name="cb_pressedRingWidth" format="dimension" />
+    </declare-styleable>
+
 </resources>

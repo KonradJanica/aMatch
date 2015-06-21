@@ -32,6 +32,8 @@ public class CardModel {
 	private Drawable cardLikeImageDrawable;
 	private Drawable cardDislikeImageDrawable;
 
+	private boolean isFavorite;
+
     private OnCardDimissedListener mOnCardDimissedListener = null;
 
     private OnClickListener mOnClickListener = null;
@@ -66,6 +68,7 @@ public class CardModel {
         this.description = description;
         this.companyImgUrl = companyImgUrl;
 		this.descriptionLineCount = descriptionLineCount;
+		this.isFavorite = false;
     }
 
 	public String getTitle() {
@@ -140,4 +143,13 @@ public class CardModel {
     public OnClickListener getOnClickListener() {
         return this.mOnClickListener;
     }
+
+	public boolean isFavorite() {
+		return isFavorite;
+	}
+
+	public void toggleFavorite() {
+		this.isFavorite = !isFavorite;
+	}
+
 }

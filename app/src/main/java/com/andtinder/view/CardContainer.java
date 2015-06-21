@@ -10,6 +10,7 @@ import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.media.Image;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -22,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListAdapter;
 
 import com.andtinder.model.CardModel;
@@ -69,13 +71,16 @@ public class CardContainer extends AdapterView<ListAdapter> {
     private int mNextAdapterPosition;
     private boolean mDragging;
 
+    public View getTopCardView() {
+        return mTopCard;
+    }
+
     public CardContainer(Context context) {
         super(context);
 
         setOrientation(Orientation.Disordered);
         setGravity(Gravity.CENTER);
         init();
-
     }
 
     public CardContainer(Context context, AttributeSet attrs) {

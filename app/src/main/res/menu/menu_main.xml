@@ -6,7 +6,6 @@
     <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings"
-        android:color="#e95e3c"
         android:icon="@drawable/gearselector"
         android:showAsAction="ifRoom" />
 

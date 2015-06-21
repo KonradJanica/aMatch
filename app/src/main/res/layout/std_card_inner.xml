@@ -56,7 +56,7 @@
     <View
         android:layout_width="fill_parent"
         android:layout_height="10dp"
-        android:layout_alignBottom="@+id/image_1"
+        android:layout_alignBottom="@+id/image_2"
         android:layout_alignParentBottom="false"
         android:layout_below="@+id/divider_bottom"
         android:background="@color/card_bg" />
@@ -65,11 +65,11 @@
         android:id="@+id/descriptionLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/divider_title"
+        android:layout_above="@+id/image_2"
+        android:layout_alignParentEnd="false"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="false"
-        android:layout_above="@+id/image_1">
+        android:layout_below="@id/divider_title">
 
         <me.grantland.widget.AutofitTextView
             android:id="@+id/description"
@@ -83,35 +83,10 @@
     </me.grantland.widget.AutofitLayout>
 
     <View
-        android:id="@+id/btn_sep_1"
-        android:layout_width="1dp"
-        android:layout_height="0dp"
-        android:layout_alignBottom="@+id/image_1"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentRight="false"
-        android:layout_marginTop="7dp"
-        android:layout_toLeftOf="@+id/image_1"
-        android:background="#ccc" />
-
-    <ImageButton
-        android:id="@+id/image_1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="false"
-        android:layout_toLeftOf="@+id/btn_sep_2"
-        android:background="?android:attr/selectableItemBackground"
-        android:padding="10dp"
-        android:src="@drawable/camera" />
-
-    <View
         android:id="@+id/btn_sep_2"
         android:layout_width="1dp"
         android:layout_height="0dp"
         android:layout_alignBottom="@+id/image_2"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentTop="false"
         android:layout_marginTop="7dp"
         android:layout_toLeftOf="@+id/image_2"
         android:background="#ccc" />
@@ -125,5 +100,17 @@
         android:background="?android:attr/selectableItemBackground"
         android:padding="10dp"
         android:src="@drawable/people" />
+
+    <ImageView
+        android:id="@+id/fav"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/divider_bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:paddingLeft="3dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:src="@drawable/fav" />
 
 </RelativeLayout>
