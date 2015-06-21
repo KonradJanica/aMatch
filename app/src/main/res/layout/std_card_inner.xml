@@ -43,7 +43,7 @@
         android:paddingRight="2dp"
         android:paddingTop="2dp"
         android:scaleType="centerCrop"
-        fresco:placeholderImage="@drawable/picture1" />
+        fresco:placeholderImage="@drawable/missingquestion" />
 
     <View
         android:id="@+id/divider_bottom"

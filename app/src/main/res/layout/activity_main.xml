@@ -16,7 +16,7 @@
         android:layout_height="96dp"
         android:layout_gravity="center_horizontal|bottom"
         android:src="@drawable/amatch"
-        app:cb_color="#e85e3c"
+        app:cb_color="@color/amatch"
         app:cb_pressedRingWidth="16dp" />
 
     <!-- <com.andtinder.view.CardContainer

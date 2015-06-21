@@ -2,4 +2,6 @@
 <resources>
     <color name="card_bg">#EBEBEB</color>
     <color name="card_outline">#D0D0CE</color>
+    <color name="amatch">#E85e3c</color>
+    <color name="amatch_text">#C94D2E</color>
 </resources>

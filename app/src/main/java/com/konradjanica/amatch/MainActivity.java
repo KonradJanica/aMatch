@@ -2,10 +2,12 @@ package com.konradjanica.amatch;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
@@ -46,29 +48,37 @@ public class MainActivity extends Activity {
 
     private boolean aMatchButtonState;
 
+    private static int settingsChangedIntent = 1;
+
+    private void init() {
+        careerCupAPI = new CareerCupAPI();
+        questionsList = new LinkedList<>();
+        cardCount = 0;
+        pageRaw = 1;
+        adapter = new SimpleCardStackAdapter(this);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        final String company = preferences.getString("company_list", "");
+        final String job = preferences.getString("job_list", "");
+        final String topic = preferences.getString("topic_list", "");
+        final String page = Integer.toString(pageRaw);
+
+        new DownloadInitialQuestions().execute(page, company, job, topic);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fresco.initialize(this);
         setContentView(R.layout.activity_main);
 
-        String company = "microsoft-interview-questions";
-        String id = "software-engineer-intern-interview-questions";
-        String topic = "algorithm-interview-questions";
-
-        careerCupAPI = new CareerCupAPI();
-        questionsList = new LinkedList<>();
-        cardCount = 0;
-        pageRaw = 1;
+        mCardContainer = (CardContainer) findViewById(R.id.layoutview);
+        r = getResources();
 
         aMatchButtonState = true;
 
-        mCardContainer = (CardContainer) findViewById(R.id.layoutview);
-        r = getResources();
-        adapter = new SimpleCardStackAdapter(this);
-
-        final String page = Integer.toString(pageRaw);
-        new DownloadInitialQuestions().execute(page);
+        init();
 
         // Set aMatch button release
         final CircleButton aMatchButton = ((CircleButton) findViewById(R.id.amatchtoggle));
@@ -226,11 +236,19 @@ public class MainActivity extends Activity {
 //            Drawable gearDown = getResources().getDrawable(R.drawable.ic_launcher);
 //            item.setIcon(gearDown);
             Intent myIntent = new Intent(this, SettingsActivity.class);
-            startActivity(myIntent);
+            startActivityForResult(myIntent, settingsChangedIntent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (SettingsActivity.settingsChangedIntent) {
+            init();
+        }
+    }
 }

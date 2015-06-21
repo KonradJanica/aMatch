@@ -2,13 +2,8 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:style/Theme.Holo.Light">
-        <!--<item name="android:">@style/MyActionBar</item>-->
+        <!--<item name="android:background">#FF9D21</item>-->
+        <item name="android:actionMenuTextColor">@color/amatch_text</item>
     </style>
-
-    <!-- ActionBar styles -->
-    <!--<style name="MyActionBar"-->
-           <!--parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">-->
-        <!--<item name="android:background">@drawable/actionbar_background</item>-->
-    <!--</style>-->
 
 </resources>

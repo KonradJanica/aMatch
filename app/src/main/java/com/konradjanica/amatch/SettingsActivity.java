@@ -1,7 +1,9 @@
 package com.konradjanica.amatch;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -42,9 +44,11 @@ public class SettingsActivity extends PreferenceActivity {
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
+    public static boolean settingsChangedIntent = false;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         return super.onCreateOptionsMenu(menu);
@@ -54,11 +58,12 @@ public class SettingsActivity extends PreferenceActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        switch(id) {
-            case R.id.action_settings:
-                finish();
-                return true;
+        switch (id) {
+            case R.id.action_settings_done:
             case android.R.id.home:
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(String.valueOf(1), 1);
+                setResult(Activity.RESULT_OK, resultIntent);
                 finish();
                 return true;
         }
@@ -87,27 +92,35 @@ public class SettingsActivity extends PreferenceActivity {
         // use the older PreferenceActivity APIs.
 
         // Add 'general' preferences.
+        addPreferencesFromResource(R.xml.dummy);
+        PreferenceCategory header = new PreferenceCategory(this);
+        header.setTitle(R.string.pref_header_filters);
+        getPreferenceScreen().addPreference(header);
         addPreferencesFromResource(R.xml.pref_general);
 
+        bindPreferenceSummaryToValue(findPreference("topic_list"));
+        bindPreferenceSummaryToValue(findPreference("company_list"));
+        bindPreferenceSummaryToValue(findPreference("position_list"));
+
         // Add 'notifications' preferences, and a corresponding header.
-        PreferenceCategory fakeHeader = new PreferenceCategory(this);
-        fakeHeader.setTitle(R.string.pref_header_notifications);
-        getPreferenceScreen().addPreference(fakeHeader);
-        addPreferencesFromResource(R.xml.pref_notification);
+//        PreferenceCategory fakeHeader = new PreferenceCategory(this);
+//        fakeHeader.setTitle(R.string.pref_header_notifications);
+//        getPreferenceScreen().addPreference(fakeHeader);
+//        addPreferencesFromResource(R.xml.pref_notification);
 
         // Add 'data and sync' preferences, and a corresponding header.
-        fakeHeader = new PreferenceCategory(this);
-        fakeHeader.setTitle(R.string.pref_header_data_sync);
-        getPreferenceScreen().addPreference(fakeHeader);
-        addPreferencesFromResource(R.xml.pref_data_sync);
+//        fakeHeader = new PreferenceCategory(this);
+//        fakeHeader.setTitle(R.string.pref_header_data_sync);
+//        getPreferenceScreen().addPreference(fakeHeader);
+//        addPreferencesFromResource(R.xml.pref_data_sync);
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("example_text"));
-        bindPreferenceSummaryToValue(findPreference("example_list"));
-        bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-        bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+//        bindPreferenceSummaryToValue(findPreference("example_text"));
+//        bindPreferenceSummaryToValue(findPreference("example_list"));
+//        bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+//        bindPreferenceSummaryToValue(findPreference("sync_frequency"));
     }
 
     /**
@@ -159,6 +172,8 @@ public class SettingsActivity extends PreferenceActivity {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
+
+            settingsChangedIntent = true;
 
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
