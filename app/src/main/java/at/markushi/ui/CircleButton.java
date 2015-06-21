@@ -146,6 +146,7 @@ public class CircleButton extends ImageView {
         animationProgress = pressedRingWidth;
 
         setColor(color);
+        circlePaint.setColor(Color.WHITE);
 
         focusPaint.setStrokeWidth(pressedRingWidth);
         final int pressedAnimationTime = getResources().getInteger(ANIMATION_TIME_ID);
@@ -166,9 +167,11 @@ public class CircleButton extends ImageView {
                     if (aMatchButtonState) {
                         setImageResource(R.drawable.amatchinvert);
                         aMatchButtonState = false;
+                        circlePaint.setColor(defaultColor);
                     } else {
                         setImageResource(R.drawable.amatch);
                         aMatchButtonState = true;
+                        circlePaint.setColor(Color.WHITE);
                     }
                 }
             }

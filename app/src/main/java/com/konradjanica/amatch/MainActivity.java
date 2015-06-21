@@ -230,15 +230,4 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onToggleClicked(View view) {
-
-
-//        if (aMatchButtonState) {
-//            aMatchButton.setImageResource(R.drawable.amatchinvert);
-//            aMatchButtonState = false;
-//        } else {
-//            aMatchButton.setImageResource(R.drawable.amatch);
-//            aMatchButtonState = true;
-//        }
-    }
 }
