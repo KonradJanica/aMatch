@@ -5,11 +5,10 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-        <com.andtinder.view.CardContainer
-            android:id="@+id/layoutview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+    <com.andtinder.view.CardContainer
+        android:id="@+id/layoutview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <at.markushi.ui.CircleButton
         android:id="@+id/amatchtoggle"
@@ -18,8 +17,7 @@
         android:layout_gravity="center_horizontal|bottom"
         android:src="@drawable/amatch"
         app:cb_color="#e85e3c"
-        app:cb_pressedRingWidth="16dp"
-        />
+        app:cb_pressedRingWidth="16dp" />
 
     <!-- <com.andtinder.view.CardContainer
         android:id="@+id/layoutview2"

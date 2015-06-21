@@ -1,6 +1,7 @@
 package com.konradjanica.amatch;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -19,6 +20,8 @@ import com.andtinder.view.SimpleCardStackAdapter;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.konradjanica.careercup.CareerCupAPI;
 import com.konradjanica.careercup.questions.Question;
+
+import org.jsoup.Connection;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -69,14 +72,12 @@ public class MainActivity extends Activity {
 
         // Set aMatch button release
         final CircleButton aMatchButton = ((CircleButton) findViewById(R.id.amatchtoggle));
-        aMatchButton.setOnTouchListener(new View.OnTouchListener()
-        {
+        aMatchButton.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
+            public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (aMatchButton.repeatCount < aMatchButton.ANIMATION_REPEATS){
+                    if (aMatchButton.repeatCount < aMatchButton.ANIMATION_REPEATS) {
                         CardModel topCard = adapter.getCardModel(0);
                         topCard.toggleFavorite();
                         View topCardView = mCardContainer.getTopCardView();
@@ -224,6 +225,8 @@ public class MainActivity extends Activity {
         if (id == R.id.action_settings) {
 //            Drawable gearDown = getResources().getDrawable(R.drawable.ic_launcher);
 //            item.setIcon(gearDown);
+            Intent myIntent = new Intent(this, SettingsActivity.class);
+            startActivity(myIntent);
             return true;
         }
 
