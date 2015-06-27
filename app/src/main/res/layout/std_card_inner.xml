@@ -15,7 +15,7 @@
         android:fontFamily="sans-serif-condensed"
         android:gravity="bottom"
         android:lines="1"
-        android:minHeight="40dp"
+        android:minHeight="30dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="2dp"

@@ -33,7 +33,10 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
 //		((ImageView) convertView.findViewById(R.id.image)).setImageDrawable(model.getCardImageDrawable());
         Uri uri = Uri.parse(model.getCompanyImgUrl());
         ((SimpleDraweeView) convertView.findViewById(R.id.image)).setImageURI(uri);
+
         ((AutofitTextView) convertView.findViewById(R.id.title)).setText(model.getTitle());
+
+        ((AutofitTextView) convertView.findViewById(R.id.page_date)).setText("Page: " + model.getPage() + ",");
 
         AutofitTextView description = ((AutofitTextView) convertView.findViewById(R.id.description));
         description.setMaxLines(model.getDescriptionLineCount());
@@ -52,8 +55,8 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
             favoriteHeart.setVisibility(View.INVISIBLE);
         }
 
-        TextView pageNumb = ((TextView) convertView.findViewById(R.id.fav_page));
-        pageNumb.setText(model.getPage());
+        TextView favNumb = ((TextView) convertView.findViewById(R.id.fav_page));
+        favNumb.setText(model.getPage());
 
         return convertView;
     }

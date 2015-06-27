@@ -9,14 +9,17 @@ public class Question {
     public String id;
     public String company;
     public String companyImgURL;
+    public String pageNumber;
     public String[] tags;
 
     /**
-     * Constructor with one parameter
+     * Constructor with two parameters
      * @param questionText The actual question text
+     * @param pageNumber   The page number the question is pulled from
      */
-    public Question(String questionText) {
+    public Question(String questionText, String pageNumber) {
         this.questionText = questionText;
+        this.pageNumber = pageNumber;
     }
 
     /**

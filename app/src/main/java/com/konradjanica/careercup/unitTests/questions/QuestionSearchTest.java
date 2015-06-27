@@ -22,6 +22,13 @@ public class QuestionSearchTest {
         questionURL = new QuestionUrlParser(filters);
         tester = new QuestionSearch(questionURL);
         tester.loadRecentQuestions();
+
+        filters = new String[]{"2", "facebook-interview-questions"};
+        questionURL = new QuestionUrlParser(filters);
+        tester = new QuestionSearch(questionURL);
+        tester.loadRecentQuestions();
+
+//        System.out.println("size = " + tester.loadRecentQuestions().length);
     }
 
 }

@@ -53,4 +53,12 @@ public class QuestionUrlParser extends UrlParser{
         // Combine url components
         return questionsUrl + page + company + job + topic;
     }
+
+    /**
+     * Accesses the parsed questions page number
+     * @return A string representing the page number containing the questions
+     */
+    public String getParsedPageNumber() {
+        return filters[0];
+    }
 }

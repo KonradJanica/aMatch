@@ -1,7 +1,6 @@
 package com.konradjanica.careercup.questions;
 
 import com.konradjanica.careercup.urlParser.QuestionUrlParser;
-
 import org.jsoup.Jsoup;
 import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Document;
@@ -36,31 +35,20 @@ public class QuestionSearch {
         Document doc = Jsoup.connect(url).userAgent(userAgent).timeout(timeout).get();
 
         // POPULATE QUESTION TEXT
-        String selector = "span[class=entry] a p, a p+pre, a p+code";
+        String selector = "span[class=entry] > a";
         Elements elements = doc.select(selector); // get each element that matches the CSS selector
-//        int x = 0;
-        String questionText = "";
         for (Element element : elements) {
-            if (element.tagName() == "pre" || element.tagName() == "code") {
-                questionText += element.text();
-            } else {
-                String plainText = getPlainText(element);
-                questionText += plainText;
-            }
-            if (element.nextElementSibling() == null) {
-                Question nextQuestion = new Question(questionText);
-                String[] lineCounter = questionText.split("\n");
-                int lineCount = lineCounter.length + 1;
-                nextQuestion.questionTextLineCount = lineCount;
-                questionsList.add(nextQuestion);
+            String plainText = getPlainText(element);
+            String questionText = plainText.substring(0,plainText.lastIndexOf('\n'));
+            Question nextQuestion = new Question(questionText, urlParser.getParsedPageNumber());
+            String[] lineCounter = questionText.split("\n");
+            int lineCount = lineCounter.length + 1;
+            nextQuestion.questionTextLineCount = lineCount;
+            questionsList.add(nextQuestion);
 //            System.out.println(plainText);
-//                x++;
-//                System.out.println(x + "size = " + questionsList.size());
-//                System.out.println(questionText);
-//                System.out.println(lineCount);
-                questionText = "";
-                lineCount = 0;
-            }
+//            System.out.println(questionText);
+//            System.out.println(lineCount);
+//            System.out.println(questionsList.size());
         }
         // POPULATE ID
         selector = "span[class=entry] a[href~=/question\\?id]";
@@ -152,8 +140,9 @@ public class QuestionSearch {
                 append("\n * ");
             else if (name.equals("dt"))
                 append("  ");
+            else if (StringUtil.in(name, "h1", "h2", "h3", "h4", "h5", "tr"))
 //            else if (StringUtil.in(name, "p", "h1", "h2", "h3", "h4", "h5", "tr"))
-//                append("\n");
+                append("\n");
         }
 
         // hit when all of the node's children (if any) have been visited
