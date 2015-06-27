@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import at.markushi.ui.CircleButton;
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class MainActivity extends Activity {
     private final int maxCards = 5;
@@ -54,6 +55,9 @@ public class MainActivity extends Activity {
     private String topic;
 
     private boolean aMatchButtonState;
+
+    private boolean isQuestionsLoading;
+    private SmoothProgressBar progressBar;
 
     private static int settingsChangedIntent = 1;
 
@@ -83,8 +87,10 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mCardContainer = (CardContainer) findViewById(R.id.layoutview);
+        progressBar = (SmoothProgressBar) findViewById(R.id.dl_progress);
 
         aMatchButtonState = true;
+        isQuestionsLoading = false;
 
         init();
 
@@ -124,11 +130,16 @@ public class MainActivity extends Activity {
     private class DownloadInitialQuestions extends AsyncTask<String, Void, Void> {
         private Exception exception;
 
+        protected void onPreExecute() {
+            startProgressBar();
+        }
+
         protected Void doInBackground(String... filters) {
             try {
                 questionsList.addAll(careerCupAPI.loadRecentQuestions(filters));
             } catch (Exception e) {
                 this.exception = e;
+                stopProgressBar();
             }
             return null;
         }
@@ -136,6 +147,7 @@ public class MainActivity extends Activity {
         protected void onPostExecute(Void dummy) {
             if (questionsList.size() == 0) {
                 mCardContainer.setAdapter(adapter);
+                stopProgressBar();
                 return;
             }
             Iterator<Question> itr = questionsList.iterator();
@@ -145,6 +157,7 @@ public class MainActivity extends Activity {
                 addCardInitial(itr);
             }
 
+            stopProgressBar();
             mCardContainer.setAdapter(adapter);
         }
     }
@@ -152,11 +165,17 @@ public class MainActivity extends Activity {
     private class DownloadQuestions extends AsyncTask<String, Void, Void> {
         private Exception exception;
 
+        protected void onPreExecute() {
+            startProgressBar();
+        }
+
         protected Void doInBackground(String... filters) {
             try {
                 questionsList.addAll(careerCupAPI.loadRecentQuestions(filters));
             } catch (Exception e) {
                 this.exception = e;
+                isQuestionsLoading = false;
+                progressBar.progressiveStop();
             }
             return null;
         }
@@ -164,6 +183,7 @@ public class MainActivity extends Activity {
         protected void onPostExecute(Void dummy) {
             if (questionsList.size() == 0) {
                 Log.i("CareerCupAPI", "No more questions found");
+                stopProgressBar();
                 return;
             }
             Iterator<Question> itr = questionsList.iterator();
@@ -172,7 +192,18 @@ public class MainActivity extends Activity {
             while (itr.hasNext() && cardCount < maxCards) {
                 addCard(itr);
             }
+            stopProgressBar();
         }
+    }
+
+    private void stopProgressBar() {
+        isQuestionsLoading = false;
+        progressBar.progressiveStop();
+    }
+
+    private void startProgressBar() {
+        isQuestionsLoading = true;
+        progressBar.progressiveStart();
     }
 
     private void addCard(Iterator<Question> itr) {
@@ -194,7 +225,7 @@ public class MainActivity extends Activity {
                 if (questionsList.size() > maxCards * 2) {
                     addCard(questionsList.iterator());
                 } else {
-                    if (questionsList.getLast().pageNumber == Integer.toString(pageRaw)) {
+                    if (!isQuestionsLoading) {
                         ++pageRaw;
                         final String page = Integer.toString(pageRaw);
                         new DownloadQuestions().execute(page, company, job, topic);
@@ -210,7 +241,7 @@ public class MainActivity extends Activity {
                 if (questionsList.size() > maxCards * 2) {
                     addCard(questionsList.iterator());
                 } else {
-                    if (questionsList.getLast().pageNumber == Integer.toString(pageRaw)) {
+                    if (!isQuestionsLoading) {
                         ++pageRaw;
                         final String page = Integer.toString(pageRaw);
                         new DownloadQuestions().execute(page, company, job, topic);
