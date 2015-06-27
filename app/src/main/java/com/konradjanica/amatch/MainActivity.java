@@ -72,12 +72,12 @@ public class MainActivity extends Activity {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        pageRaw = 1;
+        String page = preferences.getString("page_number", "");
         company = preferences.getString("company_list", "");
         job = preferences.getString("job_list", "");
         topic = preferences.getString("topic_list", "");
 
-        String page = Integer.toString(pageRaw);
+        pageRaw = Integer.parseInt(page);
 
         new DownloadInitialQuestions().execute(page, company, job, topic);
     }
@@ -107,7 +107,7 @@ public class MainActivity extends Activity {
                     if (aMatchButton.repeatCount < aMatchButton.ANIMATION_REPEATS) {
                         if (mCardContainer.getTopCardView() == null) {
                                 final String page = Integer.toString(pageRaw);
-                                new DownloadQuestions().execute(page, company, job, topic);
+                                new DownloadRefillQuestions().execute(page, company, job, topic);
                             System.out.println("page = " + pageRaw + " questionsList size = " + questionsList.size());
                         } else {
                             CardModel topCard = adapter.getCardModel(0);
@@ -129,6 +129,9 @@ public class MainActivity extends Activity {
         });
     }
 
+    /**
+     * Sets up the adapter for first use and populates it with maxCards amount of cards
+     */
     private class DownloadInitialQuestions extends AsyncTask<String, Void, Void> {
         private Exception exception;
 
@@ -141,12 +144,15 @@ public class MainActivity extends Activity {
                 questionsList.addAll(careerCupAPI.loadRecentQuestions(filters));
             } catch (Exception e) {
                 this.exception = e;
-                errorProgressBar();
             }
             return null;
         }
 
         protected void onPostExecute(Void dummy) {
+            if (exception != null) {
+                errorProgressBar();
+                return;
+            }
             if (questionsList.size() == 0) {
                 mCardContainer.setAdapter(adapter);
                 stopProgressBar();
@@ -164,6 +170,38 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * Used to refill the cards upon pressing aMatch button on connection error
+     */
+    private class DownloadRefillQuestions extends AsyncTask<String, Void, Void> {
+        private Exception exception;
+
+        protected void onPreExecute() {
+            startProgressBar();
+        }
+
+        protected Void doInBackground(String... filters) {
+            try {
+                questionsList.addAll(careerCupAPI.loadRecentQuestions(filters));
+            } catch (Exception e) {
+                this.exception = e;
+            }
+            return null;
+        }
+
+        protected void onPostExecute(Void dummy) {
+            if (exception != null) {
+                errorProgressBar();
+                return;
+            }
+            ensureFull();
+            stopProgressBar();
+        }
+    }
+
+    /**
+     * Normal download operation, next page is loaded into questionList
+     */
     private class DownloadQuestions extends AsyncTask<String, Void, Void> {
         private Exception exception;
 
@@ -176,53 +214,67 @@ public class MainActivity extends Activity {
                 questionsList.addAll(careerCupAPI.loadRecentQuestions(filters));
             } catch (Exception e) {
                 this.exception = e;
-                errorProgressBar();
             }
             return null;
         }
 
         protected void onPostExecute(Void dummy) {
-            if (questionsList.size() == 0) {
-                Log.i("CareerCupAPI", "No more questions found");
-                stopProgressBar();
+            if (exception != null) {
+                errorProgressBar();
                 return;
-            }
-            Iterator<Question> itr = questionsList.iterator();
-            // Add cards to adapter container
-            addCard(itr);
-            while (itr.hasNext() && cardCount < maxCards) {
-                addCard(itr);
             }
             stopProgressBar();
         }
     }
 
+    /**
+     * Display download error msg
+     */
     private void errorProgressBar() {
         isQuestionsLoading = false;
         progressBar.progressiveStop();
         noQuestionsText.setText("Download Error has occurred!\nPlease Try Again.");
     }
 
+    /**
+     * Stop download progress bar and display question filter complete msg
+     */
     private void stopProgressBar() {
         isQuestionsLoading = false;
         progressBar.progressiveStop();
         noQuestionsText.setText("Sorry - no more questions!\nTry new filters");
     }
 
+    /**
+     * Start download progress bar and display loading msg
+     */
     private void startProgressBar() {
         isQuestionsLoading = true;
         progressBar.progressiveStart();
         noQuestionsText.setText("Loading Questions...");
     }
 
+    /**
+     * Add a card without notifying adapter
+     * This is the normal procedure for adding files after initial
+     * @param itr an iterator to the questionsList
+     */
     private void addCard(Iterator<Question> itr) {
         addCard(itr, false);
     }
 
+    /**
+     * Add a card while notifying adapter
+     * This is the initial procedure for adding files
+     * @param itr an iterator to the questionsList
+     */
     private void addCardInitial(Iterator<Question> itr) {
         addCard(itr, true);
     }
 
+    /**
+     * Add card to adapter and add it's listener for adding more cards
+     */
     private void addCard(Iterator<Question> itr, boolean isInitial) {
         Question q = itr.next();
         final CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL,
@@ -230,34 +282,16 @@ public class MainActivity extends Activity {
         cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
             @Override
             public void onLike() {
-                --cardCount;
                 Log.i("Swipeable Cards", "I like the card");
-                if (questionsList.size() > maxCards * 2) {
-                    addCard(questionsList.iterator());
-                } else {
-                    if (!isQuestionsLoading) {
-                        ++pageRaw;
-                        final String page = Integer.toString(pageRaw);
-                        new DownloadQuestions().execute(page, company, job, topic);
-                    }
-                }
-                System.out.println("page = " + pageRaw + " questionsList size = " + questionsList.size());
+                --cardCount;
+                ensureFull();
             }
 
             @Override
             public void onDislike() {
-                --cardCount;
                 Log.i("Swipeable Cards", "I dislike the card");
-                if (questionsList.size() > maxCards * 2) {
-                    addCard(questionsList.iterator());
-                } else {
-                    if (!isQuestionsLoading) {
-                        ++pageRaw;
-                        final String page = Integer.toString(pageRaw);
-                        new DownloadQuestions().execute(page, company, job, topic);
-                    }
-                }
-                System.out.println("page = " + pageRaw + " questionsList size = " + questionsList.size());
+                --cardCount;
+                ensureFull();
             }
         });
         cardModel.setOnClickListener(new CardModel.OnClickListener() {
@@ -273,6 +307,29 @@ public class MainActivity extends Activity {
         }
         ++cardCount;
         itr.remove();
+    }
+
+    /**
+     * Downloads next page if there's less than (maxCards * 2 - 1) in the list
+     * Also fills 2 cards into adapter up to maxCards amount
+     */
+    private void ensureFull() {
+        if (questionsList.size() < maxCards * 2) {
+            if (!isQuestionsLoading) {
+                ++pageRaw;
+                final String page = Integer.toString(pageRaw);
+                new DownloadQuestions().execute(page, company, job, topic);
+            }
+        }
+        if (questionsList.size() > 0) {
+            // Add cards until full
+            Iterator<Question> itr = questionsList.iterator();
+            addCard(itr);
+            if (itr.hasNext() && cardCount < maxCards) {
+                addCard(itr);
+            }
+        }
+        System.out.println("page = " + pageRaw + " questionsList size = " + questionsList.size());
     }
 
     @Override

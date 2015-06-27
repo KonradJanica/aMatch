@@ -42,4 +42,11 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />
 
+    <EditTextPreference
+        android:key="page_number"
+        android:title="@string/pref_page_number_title"
+        android:defaultValue="1"
+        android:inputType="numberSigned"
+        />
+
 </PreferenceScreen>

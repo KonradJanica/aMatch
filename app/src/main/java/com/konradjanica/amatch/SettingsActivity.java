@@ -105,9 +105,10 @@ public class SettingsActivity extends PreferenceActivity {
         bindPreferenceSummaryToValue(findPreference("topic_list"));
         bindPreferenceSummaryToValue(findPreference("company_list"));
         bindPreferenceSummaryToValue(findPreference("position_list"));
+        bindPreferenceSummaryToValue(findPreference("page_number"));
 
         // Add 'notifications' preferences, and a corresponding header.
-//        PreferenceCategory fakeHeader = new PreferenceCategory(this);
+//        PreferenceCategory fakeHeader = new PreferenceCategory(thi);
 //        fakeHeader.setTitle(R.string.pref_header_notifications);
 //        getPreferenceScreen().addPreference(fakeHeader);
 //        addPreferencesFromResource(R.xml.pref_notification);

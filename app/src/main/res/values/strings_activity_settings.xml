@@ -1066,6 +1066,9 @@
         <item>"maintenence-engineer-interview-questions</item>
     </string-array>
 
+    <!--Page Number-->
+    <string name="pref_page_number_title">Page Number</string>
+
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 

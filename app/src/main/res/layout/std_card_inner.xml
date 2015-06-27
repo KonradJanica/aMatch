@@ -57,7 +57,7 @@
         android:layout_alignBottom="@+id/divider_title"
         android:layout_alignParentEnd="true"
         android:layout_alignWithParentIfMissing="false"
-        android:paddingBottom="6dp"
+        android:paddingBottom="3dp"
         android:paddingRight="2dp"
         android:paddingTop="2dp"
         android:scaleType="centerCrop"
