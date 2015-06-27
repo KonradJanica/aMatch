@@ -258,6 +258,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
         final float dx, dy;
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+
+
                 mTopCard.getHitRect(childRect);
 
                 pointerIndex = event.getActionIndex();
@@ -270,7 +272,6 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 mLastTouchX = x;
                 mLastTouchY = y;
                 mActivePointerId = event.getPointerId(pointerIndex);
-
 
                 float[] points = new float[]{x - mTopCard.getLeft(), y - mTopCard.getTop()};
                 mTopCard.getMatrix().invert(mMatrix);
@@ -306,6 +307,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                removeTopCardRotation();
                 if (!mDragging) {
                     return true;
                 }
@@ -314,7 +316,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 ValueAnimator animator = ObjectAnimator.ofPropertyValuesHolder(mTopCard,
                         PropertyValuesHolder.ofFloat("translationX", 0),
                         PropertyValuesHolder.ofFloat("translationY", 0),
-                        PropertyValuesHolder.ofFloat("rotation", (float) Math.toDegrees(mRandom.nextGaussian() * DISORDERED_MAX_ROTATION_RADIANS)),
+//                        PropertyValuesHolder.ofFloat("rotation", (float) Math.toDegrees(mRandom.nextGaussian() * DISORDERED_MAX_ROTATION_RADIANS)),
+                        PropertyValuesHolder.ofFloat("rotation", 0),
                         PropertyValuesHolder.ofFloat("pivotX", mTopCard.getWidth() / 2.f),
                         PropertyValuesHolder.ofFloat("pivotY", mTopCard.getHeight() / 2.f)
                 ).setDuration(250);
@@ -322,6 +325,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 animator.start();
                 break;
             case MotionEvent.ACTION_POINTER_UP:
+                removeTopCardRotation();
+
                 pointerIndex = event.getActionIndex();
                 final int pointerId = event.getPointerId(pointerIndex);
 
@@ -382,9 +387,19 @@ public class CardContainer extends AdapterView<ListAdapter> {
                     mTopCard.setPivotY(points[1]);
                     return true;
                 }
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                removeTopCardRotation();
+                return true;
         }
 
         return false;
+    }
+
+    private void removeTopCardRotation() {
+        if (Math.abs(mTopCard.getRotation()) > 45) {
+            removeTopCard(mLastTouchX, mLastTouchY, mTopCard);
+        }
     }
 
     @Override
@@ -431,61 +446,55 @@ public class CardContainer extends AdapterView<ListAdapter> {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             Log.d("Fling", "Fling with " + velocityX + ", " + velocityY);
-            final View topCard = mTopCard;
-            float dx = e2.getX() - e1.getX();
-            if (Math.abs(dx) > mTouchSlop &&
-                    Math.abs(velocityX) > Math.abs(velocityY) &&
-                    Math.abs(velocityX) > mFlingSlop * 3) {
+            if (Math.abs(velocityX) > mFlingSlop) {
+                final View topCard = mTopCard;
                 float targetX = topCard.getX();
                 float targetY = topCard.getY();
-                long duration = 0;
 
-                boundsRect.set(0 - topCard.getWidth() - 100, 0 - topCard.getHeight() - 100, getWidth() + 100, getHeight() + 100);
+                removeTopCard(targetX, targetY, topCard);
 
-                while (boundsRect.contains((int) targetX, (int) targetY)) {
-                    targetX += velocityX / 10;
-                    targetY += velocityY / 10;
-                    duration += 100;
-                }
-
-                duration = Math.min(500, duration);
-
-                mTopCard = getChildAt(getChildCount() - 2);
-                CardModel cardModel = (CardModel)getAdapter().getItem(getChildCount() - 1);
-
-                if(mTopCard != null)
-                    mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
-
-                if (cardModel.getOnCardDimissedListener() != null) {
-                    if ( targetX > 0 ) {
-                        cardModel.getOnCardDimissedListener().onLike();
-                    } else {
-                        cardModel.getOnCardDimissedListener().onDislike();
-                    }
-                }
-
-                topCard.animate()
-                        .setDuration(duration)
-                        .alpha(.75f)
-                        .setInterpolator(new LinearInterpolator())
-                        .x(targetX)
-                        .y(targetY)
-                        .rotation(Math.copySign(45, velocityX))
-                        .setListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                removeViewInLayout(topCard);
-                                ensureFull();
-                            }
-
-                            @Override
-                            public void onAnimationCancel(Animator animation) {
-                                onAnimationEnd(animation);
-                            }
-                        });
                 return true;
             } else
                 return false;
         }
+    }
+
+    private void removeTopCard(float targetX, float targetY, final View topCard) {
+        mTopCard = getChildAt(getChildCount() - 2);
+        CardModel cardModel = (CardModel)getAdapter().getItem(getChildCount() - 1);
+
+        if(mTopCard != null)
+            mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
+
+        if (cardModel.getOnCardDimissedListener() != null) {
+            if ( targetX > 0 ) {
+                cardModel.getOnCardDimissedListener().onLike();
+            } else {
+                cardModel.getOnCardDimissedListener().onDislike();
+            }
+        }
+
+        targetX *= 1.5;
+        targetY *= 1.5;
+
+        topCard.animate()
+                .setDuration(100)
+                .alpha(.75f)
+                .setInterpolator(new LinearInterpolator())
+                .x(targetX)
+                .y(targetY)
+                .rotation(Math.copySign(45, targetX))
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        removeViewInLayout(topCard);
+                        ensureFull();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        onAnimationEnd(animation);
+                    }
+                });
     }
 }
