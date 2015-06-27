@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/global_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -14,22 +13,41 @@
         android:layout_toStartOf="@+id/image"
         android:background="@color/card_bg"
         android:fontFamily="sans-serif-condensed"
-        android:gravity="center_vertical"
+        android:gravity="bottom"
         android:lines="1"
-        android:minHeight="60dp"
+        android:minHeight="40dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="2dp"
         android:textColor="@android:color/primary_text_light"
         android:textSize="24sp"
         android:textStyle="bold"
-        tools:text="Title" />
+        android:text="Title" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/page_date"
+        style="@android:style/TextAppearance.Large.Inverse"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/image"
+        android:layout_below="@+id/title"
+        android:layout_alignStart="@+id/title"
+        android:background="@color/card_bg"
+        android:fontFamily="sans-serif-condensed"
+        android:gravity="top"
+        android:lines="1"
+        android:minHeight="20dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textColor="@android:color/primary_text_light"
+        android:textSize="14sp"
+        android:text="Page: 1, About 21 hours ago in India"/>
 
     <View
         android:id="@+id/divider_title"
         android:layout_width="fill_parent"
         android:layout_height="2dp"
-        android:layout_below="@id/title"
+        android:layout_below="@id/page_date"
         android:background="@color/card_outline" />
 
     <com.facebook.drawee.view.SimpleDraweeView
@@ -101,16 +119,33 @@
         android:padding="10dp"
         android:src="@drawable/people" />
 
-    <ImageView
+    <FrameLayout
         android:id="@+id/fav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/divider_bottom"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:paddingLeft="3dp"
+        android:layout_alignParentLeft="true">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
+        android:paddingLeft="3dp"
         android:src="@drawable/fav" />
+    <TextView
+        android:id="@+id/fav_page"
+        style="@android:style/TextAppearance.Large.Inverse"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fontFamily="sans-serif-condensed"
+        android:gravity="center"
+        android:textColor="@android:color/primary_text_light"
+        android:textStyle="bold"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="3dp"
+        android:text="Page" />
+    </FrameLayout>
 
 </RelativeLayout>

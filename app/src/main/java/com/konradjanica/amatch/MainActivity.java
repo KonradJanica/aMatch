@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.andtinder.model.CardModel;
@@ -98,7 +99,7 @@ public class MainActivity extends Activity {
                         CardModel topCard = adapter.getCardModel(0);
                         topCard.toggleFavorite();
                         View topCardView = mCardContainer.getTopCardView();
-                        ImageView favView = ((ImageView) topCardView.findViewById(R.id.fav));
+                        FrameLayout favView = ((FrameLayout) topCardView.findViewById(R.id.fav));
                         if (topCard.isFavorite()) {
                             favView.setVisibility(View.VISIBLE);
                         } else {

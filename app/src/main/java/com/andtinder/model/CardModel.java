@@ -40,7 +40,7 @@ public class CardModel {
 
     private OnClickListener mOnClickListener = null;
 
-	public interface OnCardDimissedListener {
+    public interface OnCardDimissedListener {
         void onLike();
         void onDislike();
     }
@@ -105,6 +105,10 @@ public class CardModel {
 	public void setDescriptionLineCount(int descriptionLineCount) {
 		this.descriptionLineCount = descriptionLineCount;
 	}
+
+    public String getPage() {
+        return page;
+    }
 
 	public Drawable getCardImageDrawable() {
 		return cardImageDrawable;

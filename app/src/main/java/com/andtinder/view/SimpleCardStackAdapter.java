@@ -6,7 +6,9 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.andtinder.model.CardModel;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -43,12 +45,15 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
         description.setHeightFitting();
         description.setSizeToFit();
 
-        ImageView favoriteHeart = ((ImageView) convertView.findViewById(R.id.fav));
+        FrameLayout favoriteHeart = ((FrameLayout) convertView.findViewById(R.id.fav));
         if (model.isFavorite()) {
             favoriteHeart.setVisibility(View.VISIBLE);
         } else {
             favoriteHeart.setVisibility(View.INVISIBLE);
         }
+
+        TextView pageNumb = ((TextView) convertView.findViewById(R.id.fav_page));
+        pageNumb.setText(model.getPage());
 
         return convertView;
     }
