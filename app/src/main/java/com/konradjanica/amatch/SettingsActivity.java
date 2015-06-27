@@ -44,7 +44,7 @@ public class SettingsActivity extends PreferenceActivity {
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
-    public static boolean settingsChangedIntent = false;
+    public static boolean applyPressed = false;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -58,12 +58,16 @@ public class SettingsActivity extends PreferenceActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        System.out.println(applyPressed);
         switch (id) {
+            // Apply button
             case R.id.action_settings_done:
+                applyPressed = true;
+            // Back button
             case android.R.id.home:
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra(String.valueOf(1), 1);
-                setResult(Activity.RESULT_OK, resultIntent);
+//                Intent resultIntent = new Intent();
+//                resultIntent.putExtra(String.valueOf(1), 1);
+//                setResult(Activity.RESULT_OK, resultIntent);
                 finish();
                 return true;
         }
@@ -173,7 +177,7 @@ public class SettingsActivity extends PreferenceActivity {
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
-            settingsChangedIntent = true;
+//            boolean settingsChangedIntent = true;
 
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in

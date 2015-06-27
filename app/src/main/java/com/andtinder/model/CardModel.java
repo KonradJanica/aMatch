@@ -27,7 +27,9 @@ public class CardModel {
 	private String   title;
 	private String   description;
 	private String   companyImgUrl;
+    private String   page;
 	private int      descriptionLineCount;
+
 	private Drawable cardImageDrawable;
 	private Drawable cardLikeImageDrawable;
 	private Drawable cardDislikeImageDrawable;
@@ -63,10 +65,11 @@ public class CardModel {
 		this.cardImageDrawable = new BitmapDrawable(null, cardImage);
 	}
 
-    public CardModel(String title, String description, String companyImgUrl, int descriptionLineCount) {
+    public CardModel(String title, String description, String companyImgUrl, int descriptionLineCount, int pageRaw) {
         this.title = title;
         this.description = description;
         this.companyImgUrl = companyImgUrl;
+        this.page = Integer.toString(pageRaw);
 		this.descriptionLineCount = descriptionLineCount;
 		this.isFavorite = false;
     }

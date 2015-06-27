@@ -156,7 +156,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         }
     }
 
-    private void clearStack() {
+    public void clearStack() {
         removeAllViewsInLayout();
         mNextAdapterPosition = 0;
         mTopCard = null;

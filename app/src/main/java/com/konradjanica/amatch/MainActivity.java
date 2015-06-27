@@ -38,13 +38,19 @@ public class MainActivity extends Activity {
      */
     private CardContainer mCardContainer;
 
-    private Resources r;
     private SimpleCardStackAdapter adapter;
 
     private CareerCupAPI careerCupAPI;
     private LinkedList<Question> questionsList;
+
+    // Number of cards displayed
     private int cardCount;
+
+    // From preferences/settings
     private int pageRaw;
+    private String company;
+    private String job;
+    private String topic;
 
     private boolean aMatchButtonState;
 
@@ -53,16 +59,18 @@ public class MainActivity extends Activity {
     private void init() {
         careerCupAPI = new CareerCupAPI();
         questionsList = new LinkedList<>();
-        cardCount = 0;
-        pageRaw = 1;
         adapter = new SimpleCardStackAdapter(this);
+
+        cardCount = 0;
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        final String company = preferences.getString("company_list", "");
-        final String job = preferences.getString("job_list", "");
-        final String topic = preferences.getString("topic_list", "");
-        final String page = Integer.toString(pageRaw);
+        pageRaw = 1;
+        company = preferences.getString("company_list", "");
+        job = preferences.getString("job_list", "");
+        topic = preferences.getString("topic_list", "");
+
+        String page = Integer.toString(pageRaw);
 
         new DownloadInitialQuestions().execute(page, company, job, topic);
     }
@@ -74,7 +82,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mCardContainer = (CardContainer) findViewById(R.id.layoutview);
-        r = getResources();
 
         aMatchButtonState = true;
 
@@ -170,7 +177,7 @@ public class MainActivity extends Activity {
 
     private void addCard(Iterator<Question> itr, boolean isInitial) {
         Question q = itr.next();
-        final CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL, q.questionTextLineCount);
+        final CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL, q.questionTextLineCount, pageRaw);
         cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
             @Override
             public void onLike() {
@@ -181,8 +188,9 @@ public class MainActivity extends Activity {
                 } else {
                     ++pageRaw;
                     final String page = Integer.toString(pageRaw);
-                    new DownloadQuestions().execute(page);
+                    new DownloadQuestions().execute(page, company, job, topic);
                 }
+                System.out.println("questionsList size = " + questionsList.size());
             }
 
             @Override
@@ -194,8 +202,9 @@ public class MainActivity extends Activity {
                 } else {
                     ++pageRaw;
                     final String page = Integer.toString(pageRaw);
-                    new DownloadQuestions().execute(page);
+                    new DownloadQuestions().execute(page, company, job, topic);
                 }
+                System.out.println("questionsList size = " + questionsList.size());
             }
         });
         cardModel.setOnClickListener(new CardModel.OnClickListener() {
@@ -235,6 +244,7 @@ public class MainActivity extends Activity {
         if (id == R.id.action_settings) {
 //            Drawable gearDown = getResources().getDrawable(R.drawable.ic_launcher);
 //            item.setIcon(gearDown);
+            SettingsActivity.applyPressed = false;
             Intent myIntent = new Intent(this, SettingsActivity.class);
             startActivityForResult(myIntent, settingsChangedIntent);
             return true;
@@ -247,7 +257,7 @@ public class MainActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (SettingsActivity.settingsChangedIntent) {
+        if (SettingsActivity.applyPressed) {
             init();
         }
     }
