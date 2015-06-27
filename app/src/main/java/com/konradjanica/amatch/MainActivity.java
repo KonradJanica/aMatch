@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.andtinder.model.CardModel;
 import com.andtinder.view.CardContainer;
@@ -58,6 +59,7 @@ public class MainActivity extends Activity {
 
     private boolean isQuestionsLoading;
     private SmoothProgressBar progressBar;
+    private TextView noQuestionsText;
 
     private static int settingsChangedIntent = 1;
 
@@ -86,10 +88,11 @@ public class MainActivity extends Activity {
         Fresco.initialize(this);
         setContentView(R.layout.activity_main);
 
-        mCardContainer = (CardContainer) findViewById(R.id.layoutview);
-        progressBar = (SmoothProgressBar) findViewById(R.id.dl_progress);
+        mCardContainer  = (CardContainer)     findViewById(R.id.layoutview);
+        progressBar     = (SmoothProgressBar) findViewById(R.id.dl_progress);
+        noQuestionsText = (TextView)          findViewById(R.id.no_questions_found);
 
-        aMatchButtonState = true;
+        aMatchButtonState  = true;
         isQuestionsLoading = false;
 
         init();
@@ -121,7 +124,6 @@ public class MainActivity extends Activity {
                     Log.d("Released", "Button released");
                 }
 
-                // TODO Auto-generated method stub
                 return false;
             }
         });
@@ -139,7 +141,7 @@ public class MainActivity extends Activity {
                 questionsList.addAll(careerCupAPI.loadRecentQuestions(filters));
             } catch (Exception e) {
                 this.exception = e;
-                stopProgressBar();
+                errorProgressBar();
             }
             return null;
         }
@@ -174,8 +176,7 @@ public class MainActivity extends Activity {
                 questionsList.addAll(careerCupAPI.loadRecentQuestions(filters));
             } catch (Exception e) {
                 this.exception = e;
-                isQuestionsLoading = false;
-                progressBar.progressiveStop();
+                errorProgressBar();
             }
             return null;
         }
@@ -196,14 +197,22 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void errorProgressBar() {
+        isQuestionsLoading = false;
+        progressBar.progressiveStop();
+        noQuestionsText.setText("Download Error has occurred!\nPlease Try Again.");
+    }
+
     private void stopProgressBar() {
         isQuestionsLoading = false;
         progressBar.progressiveStop();
+        noQuestionsText.setText("Sorry - no more questions!\nTry new filters");
     }
 
     private void startProgressBar() {
         isQuestionsLoading = true;
         progressBar.progressiveStart();
+        noQuestionsText.setText("Loading Questions...");
     }
 
     private void addCard(Iterator<Question> itr) {

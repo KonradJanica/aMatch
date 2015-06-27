@@ -22,6 +22,7 @@
     />
 
     <TextView
+        android:id="@+id/no_questions_found"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
