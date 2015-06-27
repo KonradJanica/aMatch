@@ -225,7 +225,8 @@ public class MainActivity extends Activity {
 
     private void addCard(Iterator<Question> itr, boolean isInitial) {
         Question q = itr.next();
-        final CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL, q.pageNumber, q.questionTextLineCount);
+        final CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL,
+                q.pageNumber, q.dateText + q.location, q.questionTextLineCount);
         cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
             @Override
             public void onLike() {

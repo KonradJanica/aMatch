@@ -36,7 +36,8 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
 
         ((AutofitTextView) convertView.findViewById(R.id.title)).setText(model.getTitle());
 
-        ((AutofitTextView) convertView.findViewById(R.id.page_date)).setText("Page: " + model.getPage() + ",");
+        ((AutofitTextView) convertView.findViewById(R.id.page_date)).setText(
+                "Page: " + model.getPage() + ", " + model.getDateAndLocation());
 
         AutofitTextView description = ((AutofitTextView) convertView.findViewById(R.id.description));
         description.setMaxLines(model.getDescriptionLineCount());

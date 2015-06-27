@@ -60,7 +60,7 @@ public class QuestionSearch {
 //            String id = plainText.substring(idIndex+1);
             Question nextQuestion = questionsList.get(index);
             nextQuestion.id = plainText;
-            index++;
+            ++index;
 //            System.out.println(plainText);
         }
         // POPULATE COMPANY
@@ -71,7 +71,7 @@ public class QuestionSearch {
             String companyTitle = element.attr("title");
             Question nextQuestion = questionsList.get(index);
             nextQuestion.company = companyTitle;
-            index++;
+            ++index;
 //            System.out.println(companyTitle);
         }
         // POPULATE COMPANY URL
@@ -82,9 +82,19 @@ public class QuestionSearch {
             String companyImgURL = element.attr("src");
             Question nextQuestion = questionsList.get(index);
             nextQuestion.companyImgURL = companyImgURL;
-            index++;
+            ++index;
 //            System.out.println(companyImgURL);
 //            System.out.println(index + "size = " + questionsList.size());
+        }
+        // POPULATE DATES AND LOCATIONS
+        selector = "abbr[class=timeago]";
+        elements = doc.select(selector); // get each element that matches the CSS selector
+        index = 0;
+        for (Element element : elements) {
+            Question nextQuestion = questionsList.get(index);
+            nextQuestion.dateText = element.text();
+            nextQuestion.location = element.nextSibling().toString();
+            ++index;
         }
         // POPULATE TAGS
         selector = "span[class=tags]";
@@ -105,7 +115,7 @@ public class QuestionSearch {
             String[] tags = tagsList.toArray(new String[tagsList.size()]);
             Question nextQuestion = questionsList.get(index);
             nextQuestion.tags = tags;
-            index++;
+            ++index;
         }
 
         return questionsList.toArray(new Question[questionsList.size()]);

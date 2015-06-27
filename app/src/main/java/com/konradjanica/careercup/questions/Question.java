@@ -10,6 +10,8 @@ public class Question {
     public String company;
     public String companyImgURL;
     public String pageNumber;
+    public String dateText;
+    public String location;
     public String[] tags;
 
     /**
