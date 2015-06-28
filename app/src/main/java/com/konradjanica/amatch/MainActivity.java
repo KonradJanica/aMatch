@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
     private LinkedList<Question> questionsList;
     private Queue<CardModel> questionsCardQueue;
     private LinkedList<CardModel> favouritesList;
+    private Queue<CardModel> favoritesCardQueue;
 
     // Number of cards displayed
     private int cardCount;
@@ -74,7 +75,6 @@ public class MainActivity extends Activity {
         adapterMain = new SimpleCardStackAdapter(this);
 
         cardCount = 0;
-        cardCountFavorite = 0;
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -105,7 +105,9 @@ public class MainActivity extends Activity {
         isFavoriteMode = false;
 
         favouritesList = Utils.readLinkedListFromFile(getApplicationContext(), favoritesFile);
+        favoritesCardQueue = new LinkedList<>(favouritesList);
         adapterFavorites = new SimpleCardStackAdapter(this);
+        cardCountFavorite = 0;
         ensureFavoritesFull(true);
         mCardContainerFavorites.setAdapter(adapterFavorites);
 
@@ -122,43 +124,88 @@ public class MainActivity extends Activity {
                         if (mCardContainerMain.getTopCardView() == null && !isFavoriteMode) {
                                 final String page = Integer.toString(pageRaw);
                                 new DownloadRefillQuestions().execute(page, company, job, topic);
-                            System.out.println("page = " + pageRaw + " questionsList size = " + questionsList.size());
                         } else {
                             CardModel topCard = questionsCardQueue.peek();
                             View topCardView = mCardContainerMain.getTopCardView();
                             if (isFavoriteMode) {
-                                topCard = favouritesList.get(0);
+                                if (favouritesList.size() > 0) {
+                                    topCard = favouritesList.get(0);
+                                }
                                 topCardView = mCardContainerFavorites.getTopCardView();
                             }
                             if (topCardView != null) {
-                                topCard.toggleFavorite();
                                 FrameLayout favView = ((FrameLayout) topCardView.findViewById(R.id.fav));
-                                if (topCard.isFavorite()) {
+                                if (!topCard.isFavorite()) {
                                     favView.setVisibility(View.VISIBLE);
                                     favouritesList.add(topCard);
                                     Utils.writeLinkedListToFile(getApplicationContext(), favouritesList, favoritesFile);
                                 } else {
                                     favView.setVisibility(View.INVISIBLE);
-                                    favouritesList.remove(topCard);
+                                    if (favouritesList.size() > 0) {
+                                        Iterator<CardModel> itr = favouritesList.iterator();
+                                        do {
+                                            CardModel cm = itr.next();
+                                            if (cm.getId().equals(topCard.getId())) {
+                                                itr.remove();
+                                                break;
+                                            }
+                                        } while (itr.hasNext());
+                                    }
                                     Utils.writeLinkedListToFile(getApplicationContext(), favouritesList, favoritesFile);
-                                    System.out.println(favouritesList.size());
                                 }
+                                topCard.toggleFavorite();
+                                System.out.println(favouritesList.size());
                             }
                         }
                     } else {
+                        favouritesList = Utils.readLinkedListFromFile(getApplicationContext(), favoritesFile);
+                        favoritesCardQueue = new LinkedList<>(favouritesList);
+                        adapterFavorites = new SimpleCardStackAdapter(getApplicationContext());
+                        cardCountFavorite = 0;
+                        ensureFavoritesFull(true);
+                        mCardContainerFavorites.setAdapter(adapterFavorites);
+
                         if (!isFavoriteMode) {
                             isFavoriteMode = true;
-                            favouritesList = Utils.readLinkedListFromFile(getApplicationContext(), favoritesFile);
-                            ensureFavoritesFull(false);
                             findViewById(R.id.main_cards).setVisibility(View.GONE);
                             findViewById(R.id.favorite_cards).setVisibility(View.VISIBLE);
                         } else {
                             isFavoriteMode = false;
                             findViewById(R.id.main_cards).setVisibility(View.VISIBLE);
                             findViewById(R.id.favorite_cards).setVisibility(View.GONE);
+                            if (adapterMain.getCount() > 0) {
+                                int end = 4;
+                                if (adapterMain.getCount() < 5) {
+                                    end = adapterMain.getCount();
+                                }
+                                for (int x = 0; x < end; ++x) {
+                                    if (favouritesList.size() > 0) {
+                                        Iterator<CardModel> itr = favouritesList.iterator();
+                                        CardModel adapterCM = adapterMain.getCardModel(x);
+                                        adapterCM.setFavorite(false);
+                                        do {
+                                            CardModel cm = itr.next();
+                                            if (cm.getId().equals(adapterCM.getId())) {
+                                                adapterCM.setFavorite(true);
+                                                break;
+                                            }
+                                        } while (itr.hasNext());
+                                    }
+                                }
+                                if (end == 4) {
+                                    for (int x = end; x < adapterMain.getCount()-1; ++x) {
+                                        adapterMain.pop();
+                                    }
+                                }
+                                adapterMain.notifyDataSetChanged();
+                                mCardContainerMain.refreshTopCard();
+                            }
                         }
+                        System.out.println(favouritesList.size());
+                        System.out.println("queue =" + favoritesCardQueue.size());
+                        System.out.println("adapter =" + adapterMain.getCount());
                     }
-                    Log.d("Released", "Button released");
+//                    Log.d("Released", "Button released");
                 }
 
                 return false;
@@ -317,30 +364,38 @@ public class MainActivity extends Activity {
      */
     private void addCard(Iterator<Question> itr, boolean isInitial) {
         Question q = itr.next();
-        final CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL,
+        CardModel cardModel = new CardModel(q.company, q.questionText, q.companyImgURL,
                 q.pageNumber, q.dateText + q.location,
                 q.id, q.questionTextLineCount);
+        if (favouritesList.size() > 0) {
+            Iterator<CardModel> iter = favouritesList.iterator();
+            do {
+                CardModel cm = iter.next();
+                if (cm.getId().equals(cardModel.getId())) {
+                    cardModel.setFavorite(true);
+                    break;
+                }
+            } while (iter.hasNext());
+        }
         cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
             @Override
             public void onLike() {
-                Log.i("Swipeable Cards", "I like the card");
-                --cardCount;
+//                Log.i("Swipeable Cards", "I like the card");
+                mainCardRemoval();
                 ensureFull();
-                questionsCardQueue.remove();
             }
 
             @Override
             public void onDislike() {
-                Log.i("Swipeable Cards", "I dislike the card");
-                --cardCount;
+//                Log.i("Swipeable Cards", "I dislike the card");
+                mainCardRemoval();
                 ensureFull();
-                questionsCardQueue.remove();
             }
         });
         cardModel.setOnClickListener(new CardModel.OnClickListener() {
             @Override
             public void OnClickListener() {
-                Log.i("Swipeable Cards", "I am pressing the card");
+//                Log.i("Swipeable Cards", "I am pressing the card");
             }
         });
         if (isInitial) {
@@ -353,22 +408,26 @@ public class MainActivity extends Activity {
         questionsCardQueue.add(cardModel);
     }
 
+    private void mainCardRemoval() {
+        --cardCount;
+        questionsCardQueue.remove();
+    }
+
     /**
      * Add card to adapterMain and add it's listener for adding more cards
      */
-    private void addCardFavorites(Iterator<CardModel> itr, boolean isInitial) {
-        CardModel cardModel = itr.next();
+    private void addCardFavorites(CardModel cardModel, boolean isInitial) {
         cardModel.setOnCardDimissedListener(new CardModel.OnCardDimissedListener() {
             @Override
             public void onLike() {
-                Log.i("Swipeable Cards", "I like the card");
+//                Log.i("Swipeable Cards", "I like the card");
                 --cardCountFavorite;
                 ensureFavoritesFull(false);
             }
 
             @Override
             public void onDislike() {
-                Log.i("Swipeable Cards", "I dislike the card");
+//                Log.i("Swipeable Cards", "I dislike the card");
                 --cardCountFavorite;
                 ensureFavoritesFull(false);
             }
@@ -376,7 +435,7 @@ public class MainActivity extends Activity {
         cardModel.setOnClickListener(new CardModel.OnClickListener() {
             @Override
             public void OnClickListener() {
-                Log.i("Swipeable Cards", "I am pressing the card");
+//                Log.i("Swipeable Cards", "I am pressing the card");
             }
         });
         if (isInitial) {
@@ -385,8 +444,6 @@ public class MainActivity extends Activity {
             adapterFavorites.add(cardModel);
         }
         ++cardCountFavorite;
-        itr.remove();
-//        favouritesList.add(cardModel);
     }
     /**
      * Downloads next page if there's less than (maxCards * 2 - 1) in the list
@@ -417,12 +474,11 @@ public class MainActivity extends Activity {
      * Fills 2 cards into adapterFavourites up to maxCards amount
      */
     private void ensureFavoritesFull(boolean isInitial) {
-        if (favouritesList.size() > 0) {
+        if (favoritesCardQueue.size() > 0 && cardCountFavorite < maxCards) {
             // Add cards until full
-            Iterator<CardModel> itr = favouritesList.iterator();
-            addCardFavorites(itr, isInitial);
-            if (itr.hasNext() && cardCountFavorite < maxCards) {
-                addCardFavorites(itr, isInitial);
+            addCardFavorites(favoritesCardQueue.poll(), isInitial);
+            if (favoritesCardQueue.size() > 0 && cardCountFavorite < maxCards) {
+                addCardFavorites(favoritesCardQueue.poll(), isInitial);
             }
         }
 //        System.out.println("page = " + pageRaw + " questionsList size = " + questionsList.size());

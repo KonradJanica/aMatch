@@ -214,4 +214,7 @@ public class CardModel implements Serializable {
 		this.isFavorite = !isFavorite;
 	}
 
+    public void setFavorite(boolean isFav) {
+        this.isFavorite = isFav;
+    }
 }

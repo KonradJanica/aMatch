@@ -58,6 +58,7 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
 
         TextView favNumb = ((TextView) convertView.findViewById(R.id.fav_page));
         favNumb.setText(model.getPage());
+        favNumb.setVisibility(View.GONE);
 
         return convertView;
     }
