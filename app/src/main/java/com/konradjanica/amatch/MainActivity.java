@@ -58,6 +58,7 @@ public class MainActivity extends Activity {
     private boolean aMatchButtonState;
 
     private boolean isQuestionsLoading;
+    private boolean isErrorLoading;
     private SmoothProgressBar progressBar;
     private TextView noQuestionsText;
 
@@ -94,6 +95,7 @@ public class MainActivity extends Activity {
 
         aMatchButtonState  = true;
         isQuestionsLoading = false;
+        isErrorLoading = false;
 
         init();
 
@@ -195,6 +197,7 @@ public class MainActivity extends Activity {
                 return;
             }
             ensureFull();
+            mCardContainer.refreshTopCard();
             stopProgressBar();
         }
     }
@@ -232,6 +235,7 @@ public class MainActivity extends Activity {
      */
     private void errorProgressBar() {
         isQuestionsLoading = false;
+        isErrorLoading = true;
         progressBar.progressiveStop();
         noQuestionsText.setText("Download Error has occurred!\nPlease Try Again.");
     }
@@ -241,6 +245,7 @@ public class MainActivity extends Activity {
      */
     private void stopProgressBar() {
         isQuestionsLoading = false;
+        isErrorLoading = false;
         progressBar.progressiveStop();
         noQuestionsText.setText("Sorry - no more questions!\nTry new filters");
     }
@@ -316,7 +321,9 @@ public class MainActivity extends Activity {
     private void ensureFull() {
         if (questionsList.size() < maxCards * 2) {
             if (!isQuestionsLoading) {
-                ++pageRaw;
+                if (!isErrorLoading) {
+                    ++pageRaw;
+                }
                 final String page = Integer.toString(pageRaw);
                 new DownloadQuestions().execute(page, company, job, topic);
             }

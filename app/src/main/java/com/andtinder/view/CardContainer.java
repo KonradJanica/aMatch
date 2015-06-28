@@ -130,13 +130,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
         mNextAdapterPosition = 0;
         adapter.registerDataSetObserver(mDataSetObserver);
 
-        ensureFull();
+        refreshTopCard();
 
-        if (getChildCount() != 0) {
-            mTopCard = getChildAt(getChildCount() - 1);
-            mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
-        }
-        mNumberOfCards = getAdapter().getCount();
         requestLayout();
     }
 
@@ -502,5 +497,15 @@ public class CardContainer extends AdapterView<ListAdapter> {
                         onAnimationEnd(animation);
                     }
                 });
+    }
+
+    public void refreshTopCard() {
+        ensureFull();
+        if (getChildCount() != 0) {
+            mTopCard = getChildAt(getChildCount() - 1);
+            if (mTopCard != null)
+                mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
+            mNumberOfCards = getAdapter().getCount();
+        }
     }
 }
