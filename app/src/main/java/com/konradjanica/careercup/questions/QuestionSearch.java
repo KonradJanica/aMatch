@@ -39,7 +39,13 @@ public class QuestionSearch {
         Elements elements = doc.select(selector); // get each element that matches the CSS selector
         for (Element element : elements) {
             String plainText = getPlainText(element);
-            String questionText = plainText.substring(0,plainText.lastIndexOf('\n'));
+            int lastNewLineIndex = plainText.lastIndexOf('\n');
+            String questionText;
+            if (lastNewLineIndex == -1) {
+                questionText = "";
+            } else {
+                questionText = plainText.substring(0, plainText.lastIndexOf('\n'));
+            }
             Question nextQuestion = new Question(questionText, urlParser.getParsedPageNumber());
             String[] lineCounter = questionText.split("\n");
             int lineCount = lineCounter.length + 1;
