@@ -22,13 +22,19 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
-public class CardModel {
+import java.io.IOException;
+import java.io.Serializable;
+
+public class CardModel implements Serializable {
+
+    private final static long serialVersionUID = 1;
 
 	private String   title;
 	private String   description;
 	private String   companyImgUrl;
     private String   pageNumb;
     private String   dateAndLocation;
+    private String   id;
 	private int      descriptionLineCount;
 
 	private Drawable cardImageDrawable;
@@ -40,6 +46,42 @@ public class CardModel {
     private OnCardDimissedListener mOnCardDimissedListener = null;
 
     private OnClickListener mOnClickListener = null;
+
+    /**
+     * Serialization implementation
+     * @param out
+     * @throws IOException
+     */
+    private void writeObject(java.io.ObjectOutputStream out)
+       throws IOException {
+        // write 'this' to 'out'...
+        out.writeObject(title);
+        out.writeObject(description);
+        out.writeObject(companyImgUrl);
+        out.writeObject(pageNumb);
+        out.writeObject(dateAndLocation);
+        out.writeObject(id);
+        out.writeInt(descriptionLineCount);
+    }
+
+    /**
+     * Serialization implementation
+     * @param in
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+   private void readObject(java.io.ObjectInputStream in)
+       throws IOException, ClassNotFoundException {
+     // populate the fields of 'this' from the data in 'in'...
+       this.title = (String) in.readObject();
+       this.description = (String) in.readObject();
+       this.companyImgUrl = (String) in.readObject();
+       this.pageNumb = (String) in.readObject();
+       this.dateAndLocation = (String) in.readObject();
+       this.id = (String) in.readObject();
+       this.descriptionLineCount = in.readInt();
+       this.isFavorite = true;
+   }
 
     public interface OnCardDimissedListener {
         void onLike();
@@ -67,12 +109,14 @@ public class CardModel {
 	}
 
     public CardModel(String title, String description, String companyImgUrl,
-                     String pageNumb, String dateAndLocation, int descriptionLineCount) {
+                     String pageNumb, String dateAndLocation,
+                     String id, int descriptionLineCount) {
         this.title = title;
         this.description = description;
         this.companyImgUrl = companyImgUrl;
         this.pageNumb = pageNumb;
         this.dateAndLocation = dateAndLocation;
+        this.id = id;
 		this.descriptionLineCount = descriptionLineCount;
 		this.isFavorite = false;
     }
@@ -115,6 +159,10 @@ public class CardModel {
 
     public String getDateAndLocation() {
         return dateAndLocation;
+    }
+
+    public String getId() {
+        return id;
     }
 
 	public Drawable getCardImageDrawable() {
