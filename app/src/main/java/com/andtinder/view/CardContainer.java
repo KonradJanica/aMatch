@@ -398,7 +398,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
     private void removeTopCardRotation() {
         if (Math.abs(mTopCard.getRotation()) > 45) {
-            removeTopCard(mLastTouchX, mLastTouchY, mTopCard);
+            removeTopCard(mLastTouchX, mLastTouchY);
         }
     }
 
@@ -451,7 +451,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 float targetX = topCard.getX();
                 float targetY = topCard.getY();
 
-                removeTopCard(targetX, targetY, topCard);
+                removeTopCard(targetX, targetY);
 
                 return true;
             } else
@@ -459,26 +459,17 @@ public class CardContainer extends AdapterView<ListAdapter> {
         }
     }
 
-    private void removeTopCard(float targetX, float targetY, final View topCard) {
-        mTopCard = getChildAt(getChildCount() - 2);
-        CardModel cardModel = (CardModel)getAdapter().getItem(getChildCount() - 1);
+    private void removeTopCard(float targetX, float targetY) {
 
-        if(mTopCard != null)
-            mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
+        targetX *= 10;
+        targetY *= 10;
 
-        if (cardModel.getOnCardDimissedListener() != null) {
-            if ( targetX > 0 ) {
-                cardModel.getOnCardDimissedListener().onLike();
-            } else {
-                cardModel.getOnCardDimissedListener().onDislike();
-            }
-        }
-
-        targetX *= 1.5;
-        targetY *= 1.5;
+        // Override requires final
+        final float finalTargetX = targetX;
+        final View topCard = mTopCard;
 
         topCard.animate()
-                .setDuration(100)
+                .setDuration(500)
                 .alpha(.75f)
                 .setInterpolator(new LinearInterpolator())
                 .x(targetX)
@@ -487,7 +478,22 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
+                        // Reference top card
+                        mTopCard = getChildAt(getChildCount() - 2);
+                        if(mTopCard != null)
+                            mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
+                        // Call listener on past top card
+                        CardModel cardModel = (CardModel)getAdapter().getItem(getChildCount() - 1);
+                        if (cardModel.getOnCardDimissedListener() != null) {
+                            if ( finalTargetX > 0 ) {
+                                cardModel.getOnCardDimissedListener().onLike();
+                            } else {
+                                cardModel.getOnCardDimissedListener().onDislike();
+                            }
+                        }
+                        // Remove top card
                         removeViewInLayout(topCard);
+                        // Repopulate adapter
                         ensureFull();
                     }
 
