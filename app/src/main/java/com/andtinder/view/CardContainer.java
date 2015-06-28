@@ -71,6 +71,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
     private int mNextAdapterPosition;
     private boolean mDragging;
 
+    private boolean mIsFlingAnimating;
+
     public View getTopCardView() {
         return mTopCard;
     }
@@ -101,6 +103,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         mFlingSlop = viewConfiguration.getScaledMinimumFlingVelocity();
         mTouchSlop = viewConfiguration.getScaledTouchSlop();
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
+        mIsFlingAnimating = false;
     }
 
     private void initFromXml(AttributeSet attr) {
@@ -393,7 +396,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
     private void removeTopCardRotation() {
         if (Math.abs(mTopCard.getRotation()) > 45) {
-            removeTopCard(mLastTouchX, mLastTouchY);
+            removeTopCard();
         }
     }
 
@@ -442,11 +445,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             Log.d("Fling", "Fling with " + velocityX + ", " + velocityY);
             if (Math.abs(velocityX) > mFlingSlop) {
-                final View topCard = mTopCard;
-                float targetX = topCard.getX();
-                float targetY = topCard.getY();
 
-                removeTopCard(targetX, targetY);
+                removeTopCard();
 
                 return true;
             } else
@@ -454,49 +454,62 @@ public class CardContainer extends AdapterView<ListAdapter> {
         }
     }
 
-    private void removeTopCard(float targetX, float targetY) {
+    private void removeTopCard() {
+        if (!mIsFlingAnimating) {
+            // Lock animator incase fling again while animating
+            mIsFlingAnimating = true;
 
-        targetX *= 10;
-        targetY *= 10;
+            float targetX = mTopCard.getX();
 
-        // Override requires final
-        final float finalTargetX = targetX;
-        final View topCard = mTopCard;
+            // Choose animation side
+            if (targetX <= 0) {
+                // Left
+                targetX = -getWidth() / 4;
+            } else {
+                // Right
+                targetX = getWidth() / 4;
+            }
 
-        topCard.animate()
-                .setDuration(500)
-                .alpha(.75f)
-                .setInterpolator(new LinearInterpolator())
-                .x(targetX)
-                .y(targetY)
-                .rotation(Math.copySign(45, targetX))
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        // Reference top card
-                        mTopCard = getChildAt(getChildCount() - 2);
-                        if(mTopCard != null)
-                            mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
-                        // Call listener on past top card
-                        CardModel cardModel = (CardModel)getAdapter().getItem(getChildCount() - 1);
-                        if (cardModel.getOnCardDimissedListener() != null) {
-                            if ( finalTargetX > 0 ) {
-                                cardModel.getOnCardDimissedListener().onLike();
-                            } else {
-                                cardModel.getOnCardDimissedListener().onDislike();
+            // Layout removal requires final
+            final float finalTargetX = targetX;
+            final View topCard = mTopCard;
+
+            topCard.animate()
+                    .setDuration(150)
+                    .alpha(.75f)
+                    .setInterpolator(new LinearInterpolator())
+                    .xBy(targetX)
+                    .rotationBy(Math.copySign(15, targetX))
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            // Reference top card
+                            mTopCard = getChildAt(getChildCount() - 2);
+                            if (mTopCard != null)
+                                mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
+                            // Call listener on past top card
+                            CardModel cardModel = (CardModel) getAdapter().getItem(getChildCount() - 1);
+                            if (cardModel.getOnCardDimissedListener() != null) {
+                                if (finalTargetX > 0) {
+                                    cardModel.getOnCardDimissedListener().onLike();
+                                } else {
+                                    cardModel.getOnCardDimissedListener().onDislike();
+                                }
                             }
+                            // Remove top card
+                            removeViewInLayout(topCard);
+                            // Repopulate adapter
+                            ensureFull();
+                            // Unlock animator
+                            mIsFlingAnimating = false;
                         }
-                        // Remove top card
-                        removeViewInLayout(topCard);
-                        // Repopulate adapter
-                        ensureFull();
-                    }
 
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-                        onAnimationEnd(animation);
-                    }
-                });
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                            onAnimationEnd(animation);
+                        }
+                    });
+        }
     }
 
     public void refreshTopCard() {
