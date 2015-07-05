@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="card_bg">#EBEBEB</color>
+    <color name="actionbar_bg">#E0E0D1</color>
+    <color name="actionbar_bg_fav">#DC9785</color>
+    <color name="card_middle_bg">#EBEBEB</color>
+    <color name="card_bg">#E7E7E2</color>
     <color name="card_outline">#D0D0CE</color>
-    <color name="amatch">#E85e3c</color>
+    <color name="amatch">#E85E3C</color>
     <color name="amatch_text">#C94D2E</color>
+    <color name="amatch_title">#936559</color>
+    <color name="main_bg">#E6CFC9</color>
 </resources>

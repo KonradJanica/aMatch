@@ -4,8 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
 import com.andtinder.model.CardModel;
 import com.konradjanica.amatch.R;

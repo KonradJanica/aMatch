@@ -1,13 +1,13 @@
 package com.andtinder.view;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.andtinder.model.CardModel;
@@ -40,9 +40,10 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
         ((AutofitTextView) convertView.findViewById(R.id.page_date)).setText(
                 "Page: " + model.getPage() + ", " + model.getDateAndLocation());
 
+        final String descriptionText = model.getDescription();
         AutofitTextView description = ((AutofitTextView) convertView.findViewById(R.id.description));
         description.setMaxLines(model.getDescriptionLineCount());
-        description.setText(model.getDescription());
+        description.setText(descriptionText);
         description.setMaxHeight(description.getHeight());
 //        description.setGravity(Gravity.CENTER);
         description.setEllipsize(TextUtils.TruncateAt.END);
@@ -60,6 +61,17 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
         TextView favNumb = ((TextView) convertView.findViewById(R.id.fav_page));
         favNumb.setText(model.getPage());
         favNumb.setVisibility(View.GONE);
+
+        // Share button listener
+        convertView.findViewById(R.id.image_2).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+//                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.setType("text/plain");
+                sendIntent.putExtra(Intent.EXTRA_TEXT, descriptionText);
+                getContext().startActivity(Intent.createChooser(sendIntent, getContext().getResources().getText(R.string.share_to)));
+            }
+        });
 
         return convertView;
     }

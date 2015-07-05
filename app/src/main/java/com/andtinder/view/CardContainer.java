@@ -31,7 +31,6 @@ import android.widget.ListAdapter;
 import com.andtinder.model.CardModel;
 import com.andtinder.model.Orientations.Orientation;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.konradjanica.amatch.MainActivity;
 import com.konradjanica.amatch.R;
 
 import java.util.Random;
@@ -551,8 +550,10 @@ public class CardContainer extends AdapterView<ListAdapter> {
                             AutofitTextView textView = (AutofitTextView) view.findViewById(R.id.description);
                             if (webView.getVisibility() == GONE) {
                                 textView.setVisibility(GONE);
-                                webView.setWebViewClient(new WebViewClient());
-                                webView.loadUrl("http://www.careercup.com" + getTopCardModel().getId());
+                                if (webView.getUrl() == null) {
+                                    webView.setWebViewClient(new WebViewClient());
+                                    webView.loadUrl("http://www.careercup.com" + getTopCardModel().getId());
+                                }
                                 webView.setVisibility(VISIBLE);
                             } else {
                                 textView.setVisibility(VISIBLE);

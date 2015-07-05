@@ -57,8 +57,8 @@
         android:layout_alignBottom="@+id/divider_title"
         android:layout_alignParentEnd="true"
         android:layout_alignWithParentIfMissing="false"
-        android:paddingBottom="3dp"
-        android:paddingRight="2dp"
+        android:paddingBottom="3.5dp"
+        android:paddingRight="3dp"
         android:paddingTop="2dp"
         android:scaleType="centerCrop"
         fresco:placeholderImage="@drawable/missingquestion" />
@@ -72,6 +72,7 @@
         android:background="@color/card_outline" />
 
     <View
+        android:id="@+id/bot_card"
         android:layout_width="fill_parent"
         android:layout_height="10dp"
         android:layout_alignBottom="@+id/image_2"
@@ -96,6 +97,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="0dp"
             android:paddingTop="2dp"
+            android:background="@color/card_middle_bg"
             android:visibility="gone" />
 
         <me.grantland.widget.AutofitTextView
@@ -106,6 +108,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="0dp"
             android:paddingTop="2dp"
+            android:background="@color/card_middle_bg"
             android:textColor="@android:color/secondary_text_light" />
     </FrameLayout>
 
@@ -124,7 +127,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="@drawable/ab_item_background"
         android:padding="10dp"
         android:src="@drawable/people" />
 

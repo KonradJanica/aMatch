@@ -1,8 +1,10 @@
 package com.konradjanica.amatch;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -23,6 +25,7 @@ import com.konradjanica.careercup.questions.Question;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Queue;
 
 import at.markushi.ui.CircleButton;
@@ -45,7 +48,6 @@ public class MainActivity extends Activity {
 
     // Number of cards displayed
     private int cardCountMain;
-    private int indexMain;
     private int cardCountFavorite;
     private int indexFavorite;
 
@@ -54,8 +56,6 @@ public class MainActivity extends Activity {
     private String company;
     private String job;
     private String topic;
-
-    private boolean aMatchButtonState;
 
     private boolean isQuestionsLoading;
     private boolean isErrorLoading;
@@ -76,7 +76,6 @@ public class MainActivity extends Activity {
         adapterMain = new SimpleCardStackAdapter(this);
 
         cardCountMain = 0;
-        indexMain = 0;
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -101,7 +100,6 @@ public class MainActivity extends Activity {
         progressBar = (SmoothProgressBar) findViewById(R.id.dl_progress);
         noQuestionsText = (TextView) findViewById(R.id.no_questions_found);
 
-        aMatchButtonState = true;
         isQuestionsLoading = false;
         isErrorLoading = false;
         isFavoriteMode = false;
@@ -186,6 +184,19 @@ public class MainActivity extends Activity {
                             ensureFavoritesFull(true);
                             mCardContainerFavorites.setAdapter(adapterFavorites);
 
+                            // Change background color
+//                            findViewById(R.id.main_background).setBackgroundColor(getResources().getColor(R.color.amatch));
+
+                            // Change actionbar color
+                            ActionBar bar = getActionBar();
+                            bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.actionbar_bg_fav)));
+                            if (Locale.getDefault().getCountry().equals("US")) {
+                                bar.setTitle("Favorites");
+                            } else {
+                                bar.setTitle("Favourites");
+                            }
+
+                            // Toggle views
                             findViewById(R.id.main_cards).setVisibility(View.GONE);
                             findViewById(R.id.favorite_cards).setVisibility(View.VISIBLE);
                         } else {
@@ -196,6 +207,12 @@ public class MainActivity extends Activity {
                             ensureMainFull();
                             mCardContainerMain.setAdapter(adapterMain);
 
+                            // Change actionbar
+                            ActionBar bar = getActionBar();
+                            bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.actionbar_bg)));
+                            bar.setTitle("aMatch");
+
+                            // Toggle views
                             findViewById(R.id.main_cards).setVisibility(View.VISIBLE);
                             findViewById(R.id.favorite_cards).setVisibility(View.GONE);
                         }
@@ -451,7 +468,6 @@ public class MainActivity extends Activity {
 
     private void mainCardRemoval() {
         --cardCountMain;
-        ++indexMain;
         questionsCardQueue.remove();
     }
 
