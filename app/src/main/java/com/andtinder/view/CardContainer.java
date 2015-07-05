@@ -8,6 +8,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.Image;
@@ -28,6 +29,7 @@ import android.widget.ListAdapter;
 
 import com.andtinder.model.CardModel;
 import com.andtinder.model.Orientations.Orientation;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.konradjanica.amatch.R;
 
 import java.util.Random;
@@ -72,6 +74,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
     private boolean mDragging;
 
     private boolean mIsFlingAnimating;
+    private boolean mIsUrlPressedDown;
 
     public View getTopCardView() {
         return mTopCard;
@@ -104,6 +107,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         mTouchSlop = viewConfiguration.getScaledTouchSlop();
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
         mIsFlingAnimating = false;
+        mIsUrlPressedDown = false;
     }
 
     private void initFromXml(AttributeSet attr) {
@@ -145,6 +149,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
             if (mOrientation == Orientation.Disordered) {
                 if (getChildCount() != 0) {
                     view.setRotation(getDisorderedRotation());
+                } else {
+                    addUrlListener(view);
                 }
             }
             addViewInLayout(view, 0, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
@@ -248,6 +254,9 @@ public class CardContainer extends AdapterView<ListAdapter> {
         if (mTopCard == null) {
             return false;
         }
+        if (mIsUrlPressedDown) {
+            return false;
+        }
         if (mGestureDetector.onTouchEvent(event)) {
             return true;
         }
@@ -347,6 +356,9 @@ public class CardContainer extends AdapterView<ListAdapter> {
         if (mTopCard == null) {
             return false;
         }
+        if (mIsUrlPressedDown) {
+            return false;
+        }
         if (mGestureDetector.onTouchEvent(event)) {
             return true;
         }
@@ -396,7 +408,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
     }
 
     private void removeTopCardRotation() {
-        if (Math.abs(mTopCard.getRotation()) > 45) {
+        if (Math.abs(mTopCard.getRotation()) > 30) {
             removeTopCard();
         }
     }
@@ -520,6 +532,9 @@ public class CardContainer extends AdapterView<ListAdapter> {
                             mTopCard.animate()
                                     .rotation(0)
                                     .setDuration(duration);
+
+                            // Add url listener to top card
+                            addUrlListener(mTopCard);
                         }
                     });
         }
@@ -533,5 +548,33 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
             mNumberOfCards = getAdapter().getCount();
         }
+    }
+
+    public void addUrlListener(View view) {
+        final SimpleDraweeView companyImage = ((SimpleDraweeView) view.findViewById(R.id.image));
+        companyImage.setOnTouchListener(new View.OnTouchListener() {
+            private Rect rect;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        companyImage.setColorFilter(Color.argb(50, 0, 0, 0));
+                        rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
+                        mIsUrlPressedDown = true;
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        companyImage.setColorFilter(Color.argb(0, 0, 0, 50));
+                        mIsUrlPressedDown = false;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
+                            companyImage.setColorFilter(Color.argb(0, 0, 0, 0));
+                            mIsUrlPressedDown = false;
+                        }
+                }
+                return true;
+            }
+        });
     }
 }

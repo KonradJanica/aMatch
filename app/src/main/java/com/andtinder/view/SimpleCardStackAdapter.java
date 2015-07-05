@@ -34,6 +34,7 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
         Uri uri = Uri.parse(model.getCompanyImgUrl());
         ((SimpleDraweeView) convertView.findViewById(R.id.image)).setImageURI(uri);
 
+
         ((AutofitTextView) convertView.findViewById(R.id.title)).setText(model.getTitle());
 
         ((AutofitTextView) convertView.findViewById(R.id.page_date)).setText(

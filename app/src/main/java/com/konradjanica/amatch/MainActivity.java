@@ -30,6 +30,7 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class MainActivity extends Activity {
     private final int maxCards = 5;
+    private final String idPrefixURL = "http://www.careercup.com";
 
     private CardContainer mCardContainerMain;
     private CardContainer mCardContainerFavorites;
@@ -378,12 +379,12 @@ public class MainActivity extends Activity {
                 ensureFull();
             }
         });
-        cardModel.setOnClickListener(new CardModel.OnClickListener() {
-            @Override
-            public void OnClickListener() {
+//        cardModel.setOnClickListener(new CardModel.OnClickListener() {
+//            @Override
+//            public void OnClickListener() {
 //                Log.i("Swipeable Cards", "I am pressing the card");
-            }
-        });
+//            }
+//        });
         if (isInitial) {
             adapterMain.addInitial(cardModel);
         } else {
@@ -426,12 +427,12 @@ public class MainActivity extends Activity {
                 ensureFull();
             }
         });
-        cardModel.setOnClickListener(new CardModel.OnClickListener() {
-            @Override
-            public void OnClickListener() {
+//        cardModel.setOnClickListener(new CardModel.OnClickListener() {
+//            @Override
+//            public void OnClickListener() {
 //                Log.i("Swipeable Cards", "I am pressing the card");
-            }
-        });
+//            }
+//        });
         adapterMain.addInitial(cardModel);
     }
 
@@ -462,12 +463,12 @@ public class MainActivity extends Activity {
                 ensureFavoritesFull(false);
             }
         });
-        cardModel.setOnClickListener(new CardModel.OnClickListener() {
-            @Override
-            public void OnClickListener() {
+//        cardModel.setOnClickListener(new CardModel.OnClickListener() {
+//            @Override
+//            public void OnClickListener() {
 //                Log.i("Swipeable Cards", "I am pressing the card");
-            }
-        });
+//            }
+//        });
         if (isInitial) {
             adapterFavorites.addInitial(cardModel);
         } else {
