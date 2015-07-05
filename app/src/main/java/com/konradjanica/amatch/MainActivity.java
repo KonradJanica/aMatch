@@ -125,9 +125,20 @@ public class MainActivity extends Activity {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     if (aMatchButton.repeatCount < aMatchButton.ANIMATION_REPEATS) {
                         if (mCardContainerMain.getTopCardView() == null && !isFavoriteMode) {
+                            // Reload and parse url when main list is empty
                             final String page = Integer.toString(pageRaw);
                             new DownloadRefillQuestions().execute(page, company, job, topic);
+                        } else if (mCardContainerFavorites.getTopCardView() == null && isFavoriteMode) {
+                            // Refresh favourites list upon button press
+                            favouritesList = Utils.readLinkedListFromFile(getApplicationContext(), favoritesFile);
+                            adapterFavorites = new SimpleCardStackAdapter(getApplicationContext());
+                            cardCountFavorite = 0;
+                            indexFavorite = 0;
+                            favoritesCardQueue = new LinkedList<>(favouritesList);
+                            ensureFavoritesFull(true);
+                            mCardContainerFavorites.setAdapter(adapterFavorites);
                         } else {
+                            // Toggle favourite card
                             CardModel topCard = questionsCardQueue.peek();
                             View topCardView = mCardContainerMain.getTopCardView();
                             if (isFavoriteMode) {
@@ -161,9 +172,11 @@ public class MainActivity extends Activity {
                             }
                         }
                     } else {
+                        // Toggle favourite mode
                         favouritesList = Utils.readLinkedListFromFile(getApplicationContext(), favoritesFile);
 
                         if (!isFavoriteMode) {
+                            // Change to favourite mode
                             isFavoriteMode = true;
 
                             adapterFavorites = new SimpleCardStackAdapter(getApplicationContext());
@@ -176,6 +189,7 @@ public class MainActivity extends Activity {
                             findViewById(R.id.main_cards).setVisibility(View.GONE);
                             findViewById(R.id.favorite_cards).setVisibility(View.VISIBLE);
                         } else {
+                            // Change to main mode
                             isFavoriteMode = false;
 
                             adapterMain = new SimpleCardStackAdapter(getApplicationContext());

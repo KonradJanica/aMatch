@@ -22,6 +22,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.LinearInterpolator;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -143,6 +144,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         mTopCard = null;
         mListAdapter = adapter;
         mNextAdapterPosition = 0;
+        mAdapterStartIndex = 0;
         adapter.registerDataSetObserver(mDataSetObserver);
 
         refreshTopCard();
@@ -490,6 +492,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
                         @Override
                         public void onAnimationStart(Animator animation) {
+                            // Report listener
                             CardModel cardModel = getTopCardModel();
                             if (cardModel.getOnCardDimissedListener() != null) {
                                 if (finalTargetX > 0) {
@@ -498,18 +501,17 @@ public class CardContainer extends AdapterView<ListAdapter> {
                                     cardModel.getOnCardDimissedListener().onDislike();
                                 }
                             }
-                            // Reference top card
+                            // Reference next top card
                             mTopCard = getChildAt(getChildCount() - 2);
                             if (mTopCard != null) {
                                 mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
+                                // Straighten next card
+                                mTopCard.animate()
+                                        .rotation(0)
+                                        .setDuration(duration);
+                                // Add url listener to top card
+                                addUrlListener(mTopCard);
                             }
-                            // Straighten next card
-                            mTopCard.animate()
-                                    .rotation(0)
-                                    .setDuration(duration);
-
-                            // Add url listener to top card
-                            addUrlListener(mTopCard);
                         }
                     });
         }
@@ -539,18 +541,23 @@ public class CardContainer extends AdapterView<ListAdapter> {
                         mIsUrlPressedDown = true;
                         break;
                     case MotionEvent.ACTION_UP:
-                        companyImage.setColorFilter(Color.argb(0, 0, 0, 50));
-                        mIsUrlPressedDown = false;
-                        WebView webView = (WebView) view.findViewById(R.id.web);
-                        AutofitTextView textView = (AutofitTextView) view.findViewById(R.id.description);
-                        if (webView.getVisibility() == GONE) {
-                            textView.setVisibility(GONE);
-                            webView.setWebViewClient(new WebViewClient());
-                            webView.loadUrl("http://www.careercup.com" + getTopCardModel().getId());
-                            webView.setVisibility(VISIBLE);
-                        } else {
-                            textView.setVisibility(VISIBLE);
-                            webView.setVisibility(GONE);
+                        if (rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
+                            companyImage.setColorFilter(Color.argb(0, 0, 0, 0));
+                            mIsUrlPressedDown = false;
+                            WebView webView = (WebView) view.findViewById(R.id.web);
+                            WebSettings settings = webView.getSettings();
+                            settings.setSupportZoom(true);
+                            settings.setBuiltInZoomControls(true);
+                            AutofitTextView textView = (AutofitTextView) view.findViewById(R.id.description);
+                            if (webView.getVisibility() == GONE) {
+                                textView.setVisibility(GONE);
+                                webView.setWebViewClient(new WebViewClient());
+                                webView.loadUrl("http://www.careercup.com" + getTopCardModel().getId());
+                                webView.setVisibility(VISIBLE);
+                            } else {
+                                textView.setVisibility(VISIBLE);
+                                webView.setVisibility(GONE);
+                            }
                         }
                         break;
                     case MotionEvent.ACTION_MOVE:
