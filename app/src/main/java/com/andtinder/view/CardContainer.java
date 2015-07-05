@@ -143,7 +143,9 @@ public class CardContainer extends AdapterView<ListAdapter> {
             View view = mListAdapter.getView(mNextAdapterPosition, null, this);
             view.setLayerType(LAYER_TYPE_SOFTWARE, null);
             if (mOrientation == Orientation.Disordered) {
-                view.setRotation(getDisorderedRotation());
+                if (getChildCount() != 0) {
+                    view.setRotation(getDisorderedRotation());
+                }
             }
             addViewInLayout(view, 0, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                     mListAdapter.getItemViewType(mNextAdapterPosition)), false);
