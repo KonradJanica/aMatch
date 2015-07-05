@@ -359,7 +359,12 @@ public class CardContainer extends AdapterView<ListAdapter> {
     }
 
     private boolean removeTopCardRotation() {
-        if (Math.abs(mTopCard.getRotation()) > mMaxRotation) {
+        float rot = Math.abs(mTopCard.getRotation());
+        if (rot > mMaxRotation / 2) {
+            float normalize = (rot / mMaxRotation) * 2 - 1;
+            mTopCard.setAlpha(1 - normalize);
+        }
+        if (rot > mMaxRotation) {
             removeTopCard();
             return true;
         }
