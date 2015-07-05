@@ -11,7 +11,6 @@ import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.media.Image;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -24,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListAdapter;
 
 import com.andtinder.model.CardModel;
@@ -58,9 +56,9 @@ public class CardContainer extends AdapterView<ListAdapter> {
     private final Rect childRect = new Rect();
     private final Matrix mMatrix = new Matrix();
 
+    private final int mMaxVisible = 5;
+    private final float mMaxRotation = 30; //degrees
 
-    //TODO: determine max dynamically based on device speed
-    private int mMaxVisible = 5;
     private GestureDetector mGestureDetector;
     private int mFlingSlop;
     private Orientation mOrientation;
@@ -75,6 +73,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
     private boolean mIsFlingAnimating;
     private boolean mIsUrlPressedDown;
+    private boolean mIsRemovedNoFling;
 
     public View getTopCardView() {
         return mTopCard;
@@ -108,6 +107,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
         mIsFlingAnimating = false;
         mIsUrlPressedDown = false;
+        mIsRemovedNoFling = false;
     }
 
     private void initFromXml(AttributeSet attr) {
@@ -260,62 +260,69 @@ public class CardContainer extends AdapterView<ListAdapter> {
         if (mGestureDetector.onTouchEvent(event)) {
             return true;
         }
+        if (removeTopCardRotation()) {
+            mIsRemovedNoFling = true;
+            return true;
+        }
         Log.d("Touch Event", MotionEvent.actionToString(event.getActionMasked()) + " ");
         final int pointerIndex;
         final float x, y;
         final float dx, dy;
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                if (!mIsRemovedNoFling) {
 
+                    mTopCard.getHitRect(childRect);
 
-                mTopCard.getHitRect(childRect);
+                    pointerIndex = event.getActionIndex();
+                    x = event.getX(pointerIndex);
+                    y = event.getY(pointerIndex);
 
-                pointerIndex = event.getActionIndex();
-                x = event.getX(pointerIndex);
-                y = event.getY(pointerIndex);
+                    if (!childRect.contains((int) x, (int) y)) {
+                        return false;
+                    }
+                    mLastTouchX = x;
+                    mLastTouchY = y;
+                    mActivePointerId = event.getPointerId(pointerIndex);
 
-                if (!childRect.contains((int) x, (int) y)) {
-                    return false;
+                    float[] points = new float[]{x - mTopCard.getLeft(), y - mTopCard.getTop()};
+                    mTopCard.getMatrix().invert(mMatrix);
+                    mMatrix.mapPoints(points);
+                    mTopCard.setPivotX(points[0]);
+                    mTopCard.setPivotY(points[1]);
                 }
-                mLastTouchX = x;
-                mLastTouchY = y;
-                mActivePointerId = event.getPointerId(pointerIndex);
 
-                float[] points = new float[]{x - mTopCard.getLeft(), y - mTopCard.getTop()};
-                mTopCard.getMatrix().invert(mMatrix);
-                mMatrix.mapPoints(points);
-                mTopCard.setPivotX(points[0]);
-                mTopCard.setPivotY(points[1]);
-
-                break;
+                    break;
             case MotionEvent.ACTION_MOVE:
+                if (!mIsRemovedNoFling) {
 
-                pointerIndex = event.findPointerIndex(mActivePointerId);
-                x = event.getX(pointerIndex);
-                y = event.getY(pointerIndex);
+                    pointerIndex = event.findPointerIndex(mActivePointerId);
+                    x = event.getX(pointerIndex);
+                    y = event.getY(pointerIndex);
 
-                dx = x - mLastTouchX;
-                dy = y - mLastTouchY;
+                    dx = x - mLastTouchX;
+                    dy = y - mLastTouchY;
 
-                if (Math.abs(dx) > mTouchSlop || Math.abs(dy) > mTouchSlop) {
-                    mDragging = true;
+                    if (Math.abs(dx) > mTouchSlop || Math.abs(dy) > mTouchSlop) {
+                        mDragging = true;
+                    }
+
+                    if (!mDragging) {
+                        return true;
+                    }
+
+                    mTopCard.setTranslationX(mTopCard.getTranslationX() + dx);
+                    mTopCard.setTranslationY(mTopCard.getTranslationY() + dy);
+
+                    mTopCard.setRotation(40 * mTopCard.getTranslationX() / (getWidth() / 2.f));
+
+                    mLastTouchX = x;
+                    mLastTouchY = y;
                 }
-
-                if (!mDragging) {
-                    return true;
-                }
-
-                mTopCard.setTranslationX(mTopCard.getTranslationX() + dx);
-                mTopCard.setTranslationY(mTopCard.getTranslationY() + dy);
-
-                mTopCard.setRotation(40 * mTopCard.getTranslationX() / (getWidth() / 2.f));
-
-                mLastTouchX = x;
-                mLastTouchY = y;
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                removeTopCardRotation();
+                mIsRemovedNoFling = false;
                 if (!mDragging) {
                     return true;
                 }
@@ -333,7 +340,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 animator.start();
                 break;
             case MotionEvent.ACTION_POINTER_UP:
-                removeTopCardRotation();
+                mIsRemovedNoFling = false;
 
                 pointerIndex = event.getActionIndex();
                 final int pointerId = event.getPointerId(pointerIndex);
@@ -351,66 +358,12 @@ public class CardContainer extends AdapterView<ListAdapter> {
         return true;
     }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (mTopCard == null) {
-            return false;
-        }
-        if (mIsUrlPressedDown) {
-            return false;
-        }
-        if (mGestureDetector.onTouchEvent(event)) {
+    private boolean removeTopCardRotation() {
+        if (Math.abs(mTopCard.getRotation()) > mMaxRotation) {
+            removeTopCard();
             return true;
         }
-        final int pointerIndex;
-        final float x, y;
-        final float dx, dy;
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                mTopCard.getHitRect(childRect);
-
-                CardModel cardModel = (CardModel) getAdapter().getItem(getChildCount() - 1);
-
-                if (cardModel.getOnClickListener() != null) {
-                    cardModel.getOnClickListener().OnClickListener();
-                }
-                pointerIndex = event.getActionIndex();
-                x = event.getX(pointerIndex);
-                y = event.getY(pointerIndex);
-
-                if (!childRect.contains((int) x, (int) y)) {
-                    return false;
-                }
-
-                mLastTouchX = x;
-                mLastTouchY = y;
-                mActivePointerId = event.getPointerId(pointerIndex);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                pointerIndex = event.findPointerIndex(mActivePointerId);
-                x = event.getX(pointerIndex);
-                y = event.getY(pointerIndex);
-                if (Math.abs(x - mLastTouchX) > mTouchSlop || Math.abs(y - mLastTouchY) > mTouchSlop) {
-                    float[] points = new float[]{x - mTopCard.getLeft(), y - mTopCard.getTop()};
-                    mTopCard.getMatrix().invert(mMatrix);
-                    mMatrix.mapPoints(points);
-                    mTopCard.setPivotX(points[0]);
-                    mTopCard.setPivotY(points[1]);
-                    return true;
-                }
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_UP:
-                removeTopCardRotation();
-                return true;
-        }
-
         return false;
-    }
-
-    private void removeTopCardRotation() {
-        if (Math.abs(mTopCard.getRotation()) > 30) {
-            removeTopCard();
-        }
     }
 
     @Override
@@ -457,7 +410,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             Log.d("Fling", "Fling with " + velocityX + ", " + velocityY);
-            if (Math.abs(velocityX) > mFlingSlop) {
+            if (Math.abs(velocityX) > mFlingSlop
+                    && !mIsRemovedNoFling) {
 
                 removeTopCard();
 
@@ -495,7 +449,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
                     .alpha(.00f)
                     .setInterpolator(new LinearInterpolator())
                     .x(targetX)
-                    .rotationBy(Math.copySign(25, targetX))
+                    .rotation(Math.copySign(mMaxRotation, targetX))
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
