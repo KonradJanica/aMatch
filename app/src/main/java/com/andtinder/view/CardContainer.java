@@ -57,7 +57,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
     private final Matrix mMatrix = new Matrix();
 
     private final int mMaxVisible = 5;
-    private final float mMaxRotation = 30; //degrees
+    private final float mMaxRotation = 40; //degrees
 
     private GestureDetector mGestureDetector;
     private int mFlingSlop;
@@ -102,7 +102,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
     private void init() {
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
-        mFlingSlop = viewConfiguration.getScaledMinimumFlingVelocity();
+        mFlingSlop = viewConfiguration.getScaledMinimumFlingVelocity() * 3;
         mTouchSlop = viewConfiguration.getScaledTouchSlop();
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
         mIsFlingAnimating = false;
@@ -337,7 +337,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
 //                        PropertyValuesHolder.ofFloat("rotation", (float) Math.toDegrees(mRandom.nextGaussian() * DISORDERED_MAX_ROTATION_RADIANS)),
                         PropertyValuesHolder.ofFloat("rotation", 0),
                         PropertyValuesHolder.ofFloat("pivotX", mTopCard.getWidth() / 2.f),
-                        PropertyValuesHolder.ofFloat("pivotY", mTopCard.getHeight() / 2.f)
+                        PropertyValuesHolder.ofFloat("pivotY", mTopCard.getHeight() / 2.f),
+                        PropertyValuesHolder.ofFloat("alpha", 1.0f)
                 ).setDuration(250);
                 animator.setInterpolator(new AccelerateInterpolator());
                 animator.start();
