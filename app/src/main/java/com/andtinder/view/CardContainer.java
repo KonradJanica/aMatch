@@ -22,15 +22,20 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.LinearInterpolator;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 
 import com.andtinder.model.CardModel;
 import com.andtinder.model.Orientations.Orientation;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.konradjanica.amatch.MainActivity;
 import com.konradjanica.amatch.R;
 
 import java.util.Random;
+
+import me.grantland.widget.AutofitTextView;
 
 public class CardContainer extends AdapterView<ListAdapter> {
     public static final int INVALID_POINTER_ID = -1;
@@ -75,6 +80,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
     private boolean mIsUrlPressedDown;
     private boolean mIsRemovedNoFling;
 
+    private int mAdapterStartIndex;
+
     public View getTopCardView() {
         return mTopCard;
     }
@@ -108,6 +115,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         mIsFlingAnimating = false;
         mIsUrlPressedDown = false;
         mIsRemovedNoFling = false;
+        mAdapterStartIndex = 0;
     }
 
     private void initFromXml(AttributeSet attr) {
@@ -465,21 +473,14 @@ public class CardContainer extends AdapterView<ListAdapter> {
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            // Call listener on past top card
-                            CardModel cardModel = (CardModel) getAdapter().getItem(getChildCount() - 1);
-                            if (cardModel.getOnCardDimissedListener() != null) {
-                                if (finalTargetX > 0) {
-                                    cardModel.getOnCardDimissedListener().onLike();
-                                } else {
-                                    cardModel.getOnCardDimissedListener().onDislike();
-                                }
-                            }
                             // Remove top card
                             removeViewInLayout(topCard);
                             // Repopulate adapter
                             ensureFull();
                             // Unlock animator
                             mIsFlingAnimating = false;
+                            // Increment start index
+                            ++mAdapterStartIndex;
                         }
 
                         @Override
@@ -489,6 +490,14 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
                         @Override
                         public void onAnimationStart(Animator animation) {
+                            CardModel cardModel = getTopCardModel();
+                            if (cardModel.getOnCardDimissedListener() != null) {
+                                if (finalTargetX > 0) {
+                                    cardModel.getOnCardDimissedListener().onLike();
+                                } else {
+                                    cardModel.getOnCardDimissedListener().onDislike();
+                                }
+                            }
                             // Reference top card
                             mTopCard = getChildAt(getChildCount() - 2);
                             if (mTopCard != null) {
@@ -516,7 +525,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         }
     }
 
-    public void addUrlListener(View view) {
+    public void addUrlListener(final View view) {
         final SimpleDraweeView companyImage = ((SimpleDraweeView) view.findViewById(R.id.image));
         companyImage.setOnTouchListener(new View.OnTouchListener() {
             private Rect rect;
@@ -532,6 +541,17 @@ public class CardContainer extends AdapterView<ListAdapter> {
                     case MotionEvent.ACTION_UP:
                         companyImage.setColorFilter(Color.argb(0, 0, 0, 50));
                         mIsUrlPressedDown = false;
+                        WebView webView = (WebView) view.findViewById(R.id.web);
+                        AutofitTextView textView = (AutofitTextView) view.findViewById(R.id.description);
+                        if (webView.getVisibility() == GONE) {
+                            textView.setVisibility(GONE);
+                            webView.setWebViewClient(new WebViewClient());
+                            webView.loadUrl("http://www.careercup.com" + getTopCardModel().getId());
+                            webView.setVisibility(VISIBLE);
+                        } else {
+                            textView.setVisibility(VISIBLE);
+                            webView.setVisibility(GONE);
+                        }
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
@@ -542,5 +562,10 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 return true;
             }
         });
+    }
+
+    public CardModel getTopCardModel() {
+        CardModel cardModel = (CardModel) getAdapter().getItem(mAdapterStartIndex);
+        return cardModel;
     }
 }

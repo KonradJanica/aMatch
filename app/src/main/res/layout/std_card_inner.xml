@@ -79,7 +79,7 @@
         android:layout_below="@+id/divider_bottom"
         android:background="@color/card_bg" />
 
-    <me.grantland.widget.AutofitLayout
+    <FrameLayout
         android:id="@+id/descriptionLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -88,6 +88,15 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@id/divider_title">
+
+        <WebView
+            android:id="@+id/web"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="0dp"
+            android:paddingTop="2dp"
+            android:visibility="gone" />
 
         <me.grantland.widget.AutofitTextView
             android:id="@+id/description"
@@ -98,7 +107,7 @@
             android:paddingRight="0dp"
             android:paddingTop="2dp"
             android:textColor="@android:color/secondary_text_light" />
-    </me.grantland.widget.AutofitLayout>
+    </FrameLayout>
 
     <View
         android:id="@+id/btn_sep_2"

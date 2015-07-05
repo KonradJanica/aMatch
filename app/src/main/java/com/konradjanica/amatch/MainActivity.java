@@ -30,7 +30,6 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class MainActivity extends Activity {
     private final int maxCards = 5;
-    private final String idPrefixURL = "http://www.careercup.com";
 
     private CardContainer mCardContainerMain;
     private CardContainer mCardContainerFavorites;
