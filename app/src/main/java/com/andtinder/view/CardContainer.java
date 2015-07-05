@@ -142,7 +142,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         while (mNextAdapterPosition < mListAdapter.getCount() && getChildCount() < mMaxVisible) {
             View view = mListAdapter.getView(mNextAdapterPosition, null, this);
             view.setLayerType(LAYER_TYPE_SOFTWARE, null);
-            if(mOrientation == Orientation.Disordered) {
+            if (mOrientation == Orientation.Disordered) {
                 view.setRotation(getDisorderedRotation());
             }
             addViewInLayout(view, 0, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
@@ -167,15 +167,14 @@ public class CardContainer extends AdapterView<ListAdapter> {
     public void setOrientation(Orientation orientation) {
         if (orientation == null)
             throw new NullPointerException("Orientation may not be null");
-        if(mOrientation != orientation) {
+        if (mOrientation != orientation) {
             this.mOrientation = orientation;
-            if(orientation == Orientation.Disordered) {
+            if (orientation == Orientation.Disordered) {
                 for (int i = 0; i < getChildCount(); i++) {
                     View child = getChildAt(i);
                     child.setRotation(getDisorderedRotation());
                 }
-            }
-            else {
+            } else {
                 for (int i = 0; i < getChildCount(); i++) {
                     View child = getChildAt(i);
                     child.setRotation(0);
@@ -291,7 +290,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
                     mDragging = true;
                 }
 
-                if(!mDragging) {
+                if (!mDragging) {
                     return true;
                 }
 
@@ -356,7 +355,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
             case MotionEvent.ACTION_DOWN:
                 mTopCard.getHitRect(childRect);
 
-                CardModel cardModel = (CardModel)getAdapter().getItem(getChildCount()-1);
+                CardModel cardModel = (CardModel) getAdapter().getItem(getChildCount() - 1);
 
                 if (cardModel.getOnClickListener() != null) {
                     cardModel.getOnClickListener().OnClickListener();
@@ -469,24 +468,23 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 // Right
                 targetX = getWidth() / 4;
             }
+            targetX *= 3;
+            // Animation Durations
+            final long duration = 500;
 
             // Layout removal requires final
             final float finalTargetX = targetX;
             final View topCard = mTopCard;
 
             topCard.animate()
-                    .setDuration(150)
-                    .alpha(.75f)
+                    .setDuration(duration)
+                    .alpha(.00f)
                     .setInterpolator(new LinearInterpolator())
-                    .xBy(targetX)
-                    .rotationBy(Math.copySign(15, targetX))
+                    .x(targetX)
+                    .rotationBy(Math.copySign(25, targetX))
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            // Reference top card
-                            mTopCard = getChildAt(getChildCount() - 2);
-                            if (mTopCard != null)
-                                mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
                             // Call listener on past top card
                             CardModel cardModel = (CardModel) getAdapter().getItem(getChildCount() - 1);
                             if (cardModel.getOnCardDimissedListener() != null) {
@@ -507,6 +505,19 @@ public class CardContainer extends AdapterView<ListAdapter> {
                         @Override
                         public void onAnimationCancel(Animator animation) {
                             onAnimationEnd(animation);
+                        }
+
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            // Reference top card
+                            mTopCard = getChildAt(getChildCount() - 2);
+                            if (mTopCard != null) {
+                                mTopCard.setLayerType(LAYER_TYPE_HARDWARE, null);
+                            }
+                            // Straighten next card
+                            mTopCard.animate()
+                                    .rotation(0)
+                                    .setDuration(duration);
                         }
                     });
         }
