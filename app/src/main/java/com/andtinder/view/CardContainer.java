@@ -270,7 +270,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         final float dx, dy;
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                if (!mIsRemovedNoFling) {
+                if (!mIsRemovedNoFling && !mIsFlingAnimating) {
 
                     mTopCard.getHitRect(childRect);
 
@@ -294,7 +294,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
                     break;
             case MotionEvent.ACTION_MOVE:
-                if (!mIsRemovedNoFling) {
+                if (!mIsRemovedNoFling && !mIsFlingAnimating) {
 
                     pointerIndex = event.findPointerIndex(mActivePointerId);
                     x = event.getX(pointerIndex);
@@ -323,6 +323,9 @@ public class CardContainer extends AdapterView<ListAdapter> {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 mIsRemovedNoFling = false;
+                if (mIsFlingAnimating) {
+                    return true;
+                }
                 if (!mDragging) {
                     return true;
                 }
@@ -341,6 +344,9 @@ public class CardContainer extends AdapterView<ListAdapter> {
                 break;
             case MotionEvent.ACTION_POINTER_UP:
                 mIsRemovedNoFling = false;
+                if (mIsFlingAnimating) {
+                    return true;
+                }
 
                 pointerIndex = event.getActionIndex();
                 final int pointerId = event.getPointerId(pointerIndex);
