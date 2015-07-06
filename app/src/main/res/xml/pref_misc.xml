@@ -6,7 +6,7 @@
     <ListPreference
         android:key="fling_speed"
         android:title="@string/pref_fling_title"
-        android:defaultValue="3"
+        android:defaultValue="5"
         android:entries="@array/pref_fling_titles"
         android:entryValues="@array/pref_fling_values"
         android:negativeButtonText="@null"
