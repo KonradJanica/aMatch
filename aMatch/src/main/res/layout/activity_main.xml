@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_background"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@color/main_bg">
+
+    <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+        android:id="@+id/dl_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:spb_color="@color/amatch"
+        app:spb_mirror_mode="false"
+        app:spb_progressiveStart_activated="false"
+        app:spb_progressiveStart_speed="1.5"
+        app:spb_progressiveStop_speed="1.5"
+        app:spb_reversed="false"
+        app:spb_sections_count="4"
+        app:spb_stroke_separator_length="4dp"
+        app:spb_stroke_width="20dp" />
+
+    <TextView
+        android:id="@+id/no_questions_found"
+        style="@android:style/TextAppearance.Large.Inverse"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fontFamily="sans-serif-condensed"
+        android:gravity="center"
+        android:text="Sorry - no more questions!\nTry new filters"
+        android:textColor="@android:color/primary_text_light" />
+
+    <com.andtinder.view.CardContainer
+        android:id="@+id/main_cards"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.andtinder.view.CardContainer
+        android:id="@+id/favorite_cards"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <at.markushi.ui.CircleButton
+        android:id="@+id/amatchtoggle"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:src="@drawable/amatch"
+        app:cb_color="@color/amatch"
+        app:cb_pressedRingWidth="16dp" />
+
+    <!-- <com.andtinder.view.CardContainer
+        android:id="@+id/layoutview2"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:orientation="ordered"/> -->
+
+</FrameLayout>
