@@ -31,6 +31,7 @@ import android.widget.ListAdapter;
 import com.andtinder.model.CardModel;
 import com.andtinder.model.Orientations.Orientation;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.konradjanica.amatch.MainActivity;
 import com.konradjanica.amatch.R;
 
 import java.util.Random;
@@ -109,7 +110,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
     private void init() {
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
-        mFlingSlop = viewConfiguration.getScaledMinimumFlingVelocity() * 3;
+        mFlingSlop = viewConfiguration.getScaledMinimumFlingVelocity();
         mTouchSlop = viewConfiguration.getScaledTouchSlop();
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
         mIsFlingAnimating = false;
@@ -431,7 +432,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             Log.d("Fling", "Fling with " + velocityX + ", " + velocityY);
-            if (Math.abs(velocityX) > mFlingSlop
+            if (Math.abs(velocityX) > mFlingSlop * MainActivity.maxFlingSensitivity
                     && !mIsRemovedNoFling) {
 
                 removeTopCard();

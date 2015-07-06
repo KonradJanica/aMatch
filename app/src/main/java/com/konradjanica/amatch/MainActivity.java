@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
     private int indexFavorite;
 
     // From preferences/settings
+    public static int maxFlingSensitivity;
     private int pageRaw;
     private String company;
     private String job;
@@ -78,6 +79,8 @@ public class MainActivity extends Activity {
         cardCountMain = 0;
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        maxFlingSensitivity = Integer.parseInt(preferences.getString("fling_speed", "3"));
 
         String page = preferences.getString("page_number", "");
         company = preferences.getString("company_list", "");
@@ -468,7 +471,9 @@ public class MainActivity extends Activity {
 
     private void mainCardRemoval() {
         --cardCountMain;
-        questionsCardQueue.remove();
+        if (questionsCardQueue.size() > 0) {
+            questionsCardQueue.remove();
+        }
     }
 
     /**
