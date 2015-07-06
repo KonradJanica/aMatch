@@ -607,4 +607,21 @@ public class MainActivity extends Activity {
             init();
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        // RetrieveLastCard will put previously destroyed card
+        //   on the top of current card container stack
+        //   else just use normal back button
+        if (isFavoriteMode) {
+            if (!mCardContainerFavorites.retrieveLastCard()) {
+                super.onBackPressed();
+            }
+        } else {
+            if (!mCardContainerMain.retrieveLastCard()) {
+                super.onBackPressed();
+            }
+        }
+
+    }
 }

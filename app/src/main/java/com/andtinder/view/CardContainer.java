@@ -62,8 +62,8 @@ public class CardContainer extends AdapterView<ListAdapter> {
     private final Rect childRect = new Rect();
     private final Matrix mMatrix = new Matrix();
 
-    private final int mMaxVisible = 5;
-    private final float mMaxRotation = 40; //degrees
+    private static final int mMaxVisible = 5;
+    private static final float mMaxRotation = 40; //degrees
 
     private GestureDetector mGestureDetector;
     private int mFlingSlop;
@@ -170,6 +170,36 @@ public class CardContainer extends AdapterView<ListAdapter> {
 
             mNextAdapterPosition += 1;
         }
+    }
+
+    /**
+     * Gets the previously destroyed card and returns it to top of stack
+     *
+     * @return false if there are no previously destroyed cards
+     */
+    public boolean retrieveLastCard() {
+        if (mListAdapter.getCount() > 0
+                && mAdapterStartIndex > 0) {
+
+            mAdapterStartIndex -= 1;
+
+            View view = mListAdapter.getView(mAdapterStartIndex, null, this);
+            view.setLayerType(LAYER_TYPE_SOFTWARE, null);
+            if (mOrientation == Orientation.Disordered) {
+                addUrlListener(view);
+            }
+            int topIndexInLayout = mNextAdapterPosition - mAdapterStartIndex - 1;
+            addViewInLayout(view, topIndexInLayout, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                    mListAdapter.getItemViewType(mNextAdapterPosition)), false);
+
+            requestLayout();
+
+            refreshTopCard();
+
+            return true;
+        }
+
+        return false;
     }
 
     public void clearStack() {
@@ -302,7 +332,7 @@ public class CardContainer extends AdapterView<ListAdapter> {
                     mTopCard.setPivotY(points[1]);
                 }
 
-                    break;
+                break;
             case MotionEvent.ACTION_MOVE:
                 if (!mIsRemovedNoFling && !mIsFlingAnimating) {
 
