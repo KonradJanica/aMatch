@@ -297,7 +297,12 @@ public class MainActivity extends Activity {
                 return;
             }
             ensureFull();
-            mCardContainerMain.refreshTopCard();
+            try {
+                mCardContainerMain.refreshTopCard();
+            } catch (Exception e) {
+                errorProgressBar();
+                return;
+            }
             stopProgressBar();
         }
     }
