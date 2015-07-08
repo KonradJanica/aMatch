@@ -1,7 +1,7 @@
 # aMatch
 A Mobile App for practicing Interview questions - Written in Java for Android
 
-![Demo](https://github.com/KonradJanica/aMatch/raw/master/demos/fling.gif)
+[![Demo](https://github.com/KonradJanica/aMatch/raw/master/demos/fling.gif)](http://www.youtube.com/watch?v=o2hEPERXVro)
 
 ## Features
 1.	Toggle Question URL using company logo for answers
@@ -16,8 +16,6 @@ A Mobile App for practicing Interview questions - Written in Java for Android
 10.	Infinite Questions
 11.	Store favourites
 12.	Fling through favourites without internet access
-
-[![aMatch Demo](http://img.youtube.com/vi/o2hEPERXVro/0.jpg)](http://www.youtube.com/watch?v=o2hEPERXVro)
 
 ### V 1.1
 - Added back button hold feature
