@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -614,14 +615,24 @@ public class MainActivity extends Activity {
         //   on the top of current card container stack
         //   else just use normal back button
         if (isFavoriteMode) {
-            if (!mCardContainerFavorites.retrieveLastCard()) {
-                super.onBackPressed();
-            }
+//            if (!mCardContainerFavorites.retrieveLastCard()) {
+//                return; //do nothing
+//            }
+            mCardContainerFavorites.retrieveLastCard();
         } else {
-            if (!mCardContainerMain.retrieveLastCard()) {
-                super.onBackPressed();
-            }
+//            if (!mCardContainerMain.retrieveLastCard()) {
+//                return; //do nothing
+//            }
+            mCardContainerMain.retrieveLastCard();
         }
 
+    }
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            super.onBackPressed();
+        }
+        return super.onKeyLongPress(keyCode, event);
     }
 }

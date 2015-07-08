@@ -65,11 +65,15 @@ public final class SimpleCardStackAdapter extends CardStackAdapter {
         // Share button listener
         convertView.findViewById(R.id.image_2).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                try {
+                    Intent sendIntent = new Intent(Intent.ACTION_SEND);
 //                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.setType("text/plain");
-                sendIntent.putExtra(Intent.EXTRA_TEXT, descriptionText);
-                getContext().startActivity(Intent.createChooser(sendIntent, getContext().getResources().getText(R.string.share_to)));
+                    sendIntent.setType("text/plain");
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, descriptionText);
+                    getContext().startActivity(Intent.createChooser(sendIntent, getContext().getResources().getText(R.string.share_to)));
+                } catch(Exception e) {
+                    return; //do nothing
+                }
             }
         });
 
