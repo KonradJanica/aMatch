@@ -1,7 +1,7 @@
 # aMatch
 A Mobile App for practicing Interview questions - Written in Java for Android
 
-![Demo](../blob/master/demos/fling.gif?raw=true)
+![Demo](https://github.com/KonradJanica/aMatch/raw/master/demos/fling.gif)
 
 ## Features
 1.	Toggle Question URL using company logo for answers
