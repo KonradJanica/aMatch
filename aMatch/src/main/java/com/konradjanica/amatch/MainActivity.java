@@ -83,7 +83,7 @@ public class MainActivity extends Activity {
 
         maxFlingSensitivity = Integer.parseInt(preferences.getString("fling_speed", "3"));
 
-        String page = preferences.getString("page_number", "");
+        String page = preferences.getString("page_number", "1");
         company = preferences.getString("company_list", "");
         job = preferences.getString("job_list", "");
         topic = preferences.getString("topic_list", "");
