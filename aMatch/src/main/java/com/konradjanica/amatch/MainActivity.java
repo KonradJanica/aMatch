@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -98,6 +99,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         Fresco.initialize(this);
         setContentView(R.layout.activity_main);
+
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
 
         mCardContainerMain = (CardContainer) findViewById(R.id.main_cards);
         mCardContainerFavorites = (CardContainer) findViewById(R.id.favorite_cards);

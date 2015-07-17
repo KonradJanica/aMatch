@@ -18,7 +18,7 @@
     <ListPreference
         android:key="topic_list"
         android:title="@string/pref_title_topic"
-        android:defaultValue="None"
+        android:defaultValue=""
         android:entries="@array/pref_topic_list_titles"
         android:entryValues="@array/pref_topic_list_values"
         android:negativeButtonText="@null"
@@ -27,7 +27,7 @@
     <ListPreference
         android:key="company_list"
         android:title="@string/pref_title_company"
-        android:defaultValue="None"
+        android:defaultValue=""
         android:entries="@array/pref_company_list_titles"
         android:entryValues="@array/pref_company_list_values"
         android:negativeButtonText="@null"
@@ -36,7 +36,7 @@
     <ListPreference
         android:key="position_list"
         android:title="@string/pref_title_position"
-        android:defaultValue="None"
+        android:defaultValue=""
         android:entries="@array/pref_position_list_titles"
         android:entryValues="@array/pref_position_list_values"
         android:negativeButtonText="@null"
