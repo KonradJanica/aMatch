@@ -7,13 +7,13 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -618,15 +618,25 @@ public class MainActivity extends Activity {
         //   on the top of current card container stack
         //   else just use normal back button
         if (isFavoriteMode) {
-//            if (!mCardContainerFavorites.retrieveLastCard()) {
-//                return; //do nothing
-//            }
-            mCardContainerFavorites.retrieveLastCard();
+            // Close webview if open
+            //   else retreive card
+            WebView webView = (WebView) mCardContainerFavorites.getTopCardView().findViewById(R.id.web);
+            if (webView.getVisibility() == View.VISIBLE) {
+                webView.setVisibility(View.GONE);
+                mCardContainerFavorites.getTopCardView().findViewById(R.id.description).setVisibility(View.VISIBLE);
+            } else {
+                mCardContainerFavorites.retrieveLastCard();
+            }
         } else {
-//            if (!mCardContainerMain.retrieveLastCard()) {
-//                return; //do nothing
-//            }
-            mCardContainerMain.retrieveLastCard();
+            // Close webview if open
+            //   else retreive card
+            WebView webView = (WebView) mCardContainerMain.getTopCardView().findViewById(R.id.web);
+            if (webView.getVisibility() == View.VISIBLE) {
+                webView.setVisibility(View.GONE);
+                mCardContainerMain.getTopCardView().findViewById(R.id.description).setVisibility(View.VISIBLE);
+            } else {
+                mCardContainerMain.retrieveLastCard();
+            }
         }
 
     }
